@@ -76,10 +76,10 @@ CREATE TABLE IF NOT EXISTS customer_feedback (
     FOREIGN KEY (service_request_id) REFERENCES service_requests(id) ON DELETE CASCADE
 );
 
--- Insert Admin User (password: Admin@123)
--- Hash generated with bcrypt for 'Admin@123'
+-- Insert Admin User (password: admin123)
+-- Hash generated with SHA-256 + salt (matching security.py verify_password)
 INSERT INTO admin_users (full_name, email, password_hash)
-VALUES ('CyberNova Admin', 'admin@cybernova.com', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW')
+VALUES ('CyberNova Admin', 'admin@cybernova.co.bw', 'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4$98c122615a783198b0e4e0df0b3988b251d9c9b5ef16e390501d337a2fd0e065')
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert Sample Webinars

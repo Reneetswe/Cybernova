@@ -2,9 +2,9 @@
 // This file connects the existing HTML UI to the FastAPI backend
 
 // API Base URL - automatically uses production URL when deployed
-const API_BASE_URL = window.location.hostname === 'localhost' 
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:8000/api'
-  : 'https://your-backend-name.onrender.com/api'; // Update this after deploying to Render
+  : 'https://cybernova-3rvx.onrender.com/api';
 
 // ============================================
 // API HELPER FUNCTIONS
@@ -45,6 +45,12 @@ function showPage(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
   
+  // Hide main nav when on dashboard, show otherwise
+  const mainNav = document.querySelector('body > nav');
+  if (mainNav) {
+    mainNav.style.display = (id === 'dashboard') ? 'none' : 'flex';
+  }
+  
   if (id === 'dashboard') {
     if (!localStorage.getItem('authToken')) {
       showPage('login');
@@ -57,6 +63,207 @@ function showPage(id) {
   if (id === 'events') {
     loadWebinars();
   }
+}
+
+// ============================================
+// ADMIN DASHBOARD NAVIGATION
+// ============================================
+
+function showAdminPage(pageId) {
+  // Hide all sub-pages
+  document.querySelectorAll('.admin-sub-page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById(pageId);
+  if (target) target.classList.add('active');
+  
+  // Update sidebar active state
+  document.querySelectorAll('.admin-sidebar-nav a').forEach(a => a.classList.remove('active'));
+  const clickedLink = document.querySelector(`.admin-sidebar-nav a[onclick*="${pageId}"]`);
+  if (clickedLink) clickedLink.classList.add('active');
+  
+  // Scroll content to top
+  const content = document.querySelector('.admin-content');
+  if (content) content.scrollTo(0, 0);
+  
+  // Render charts if switching to pages that need them
+  if (pageId === 'admin-overview') {
+    renderAdminDashboard();
+  } else if (pageId === 'admin-analytics') {
+    renderAnalyticsCharts();
+  } else if (pageId === 'admin-satisfaction') {
+    renderSatisfactionCharts();
+  }
+}
+
+function toggleAdminSidebar() {
+  const sidebar = document.getElementById('adminSidebar');
+  const main = document.querySelector('.admin-main');
+  if (sidebar.style.transform === 'translateX(-100%)') {
+    sidebar.style.transform = 'translateX(0)';
+    main.style.marginLeft = '180px';
+  } else {
+    sidebar.style.transform = 'translateX(-100%)';
+    main.style.marginLeft = '0';
+  }
+}
+
+function adminLogout() {
+  localStorage.removeItem('authToken');
+  showPage('home');
+  showToast('Logged out successfully');
+}
+
+function showSettingsTab(el) {
+  document.querySelectorAll('.settings-tabs a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function exportCSV() {
+  showToast('Exporting CSV... Download will start shortly.');
+}
+
+// ============================================
+// ADMIN DASHBOARD CHART RENDERERS
+// ============================================
+
+function renderAdminDashboard() {
+  // Bar chart
+  const months = ['Jan','Feb','Mar','Apr','May','Jun'];
+  const vals = [95, 105, 80, 115, 210, 150];
+  const maxV = Math.max(...vals);
+  const barChart = document.getElementById('barChart');
+  if (barChart) {
+    barChart.innerHTML = vals.map((v,i) => `
+      <div class="admin-bar-group">
+        <div class="admin-bar" style="height:${(v/maxV)*170}px;background:#9ca3af" title="${months[i]}: ${v}"></div>
+        <div class="admin-bar-label">${months[i]}</div>
+      </div>`).join('');
+  }
+
+  // Pie chart - Requests by Status
+  const statuses = [
+    {label:'Pending',pct:40,color:'#6b7280'},
+    {label:'Reviewed',pct:25,color:'#9ca3af'},
+    {label:'In Progress',pct:20,color:'#d1d5db'},
+    {label:'Completed',pct:15,color:'#e5e7eb'},
+  ];
+  let cumAngle = 0;
+  const paths = statuses.map(d => {
+    const angle = (d.pct / 100) * 360;
+    const start = polarToXY(50, 50, 45, cumAngle);
+    cumAngle += angle;
+    const end = polarToXY(50, 50, 45, cumAngle);
+    const large = angle > 180 ? 1 : 0;
+    return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${d.color}" stroke="#fff" stroke-width="1.5"/>`;
+  });
+  const pieChart = document.getElementById('pieChart');
+  if (pieChart) pieChart.innerHTML = paths.join('');
+  const pieLegend = document.getElementById('pieLegend');
+  if (pieLegend) pieLegend.innerHTML = statuses.map(d =>
+    `<div class="admin-legend-item"><div class="admin-legend-dot" style="background:${d.color}"></div><span>${d.label} (${d.pct}%)</span></div>`
+  ).join('');
+}
+
+function renderAnalyticsCharts() {
+  // Geo chart
+  const geoData = [
+    {c:'Botswana',n:89},{c:'South Africa',n:72},{c:'Zimbabwe',n:35},{c:'Zambia',n:28},{c:'Namibia',n:14},{c:'Other',n:9}
+  ];
+  const gMax = geoData[0].n;
+  const geoChart = document.getElementById('geoChart');
+  if (geoChart) {
+    geoChart.innerHTML = geoData.map(d => `
+      <div class="conversion-row" style="margin-bottom:12px">
+        <div class="conv-label" style="font-size:12px;color:#374151;width:100px">${d.c}</div>
+        <div class="conv-bar-wrap" style="background:#e5e7eb"><div class="conv-bar-fill" style="width:${(d.n/gMax)*100}%;background:#9ca3af"></div></div>
+        <div class="conv-pct" style="color:#374151;font-weight:600">${d.n}</div>
+      </div>`).join('');
+  }
+
+  // Conversion funnel
+  const funnel = [
+    {label:'Inquiries',pct:100},{label:'Qualified',pct:78},{label:'Proposal Sent',pct:70},{label:'In Negotiation',pct:68},{label:'Contracted',pct:64}
+  ];
+  const convChart = document.getElementById('convChart');
+  if (convChart) {
+    convChart.innerHTML = funnel.map(d => `
+      <div class="conversion-row" style="margin-bottom:12px">
+        <div class="conv-label" style="font-size:12px;color:#374151;width:110px">${d.label}</div>
+        <div class="conv-bar-wrap" style="background:#e5e7eb"><div class="conv-bar-fill" style="width:${d.pct}%;background:#9ca3af"></div></div>
+        <div class="conv-pct" style="color:#374151;font-weight:600">${d.pct}%</div>
+      </div>`).join('');
+  }
+
+  // Line chart
+  const allVals = [28,34,22,40,38,55,47,62,70,58,78,85];
+  const predicted = [92,101,110];
+  const all = [...allVals,...predicted];
+  const lMax = Math.max(...all);
+  const lMin = 0;
+  const w = 800, h = 160, pad = 20;
+  const xFn = (i) => pad + (i / (all.length - 1)) * (w - 2*pad);
+  const yFn = (v) => h - pad - ((v - lMin) / (lMax - lMin)) * (h - 2*pad);
+
+  const realPoints = allVals.map((v,i) => `${xFn(i)},${yFn(v)}`).join(' ');
+  const predPoints = predicted.map((v,i) => `${xFn(allVals.length-1+i)},${yFn(v)}`).join(' ');
+
+  const lineChart = document.getElementById('lineChart');
+  if (lineChart) {
+    let svgContent = [3,2,1].map(n => {
+      const yv = yFn(lMin + n * (lMax-lMin)/3);
+      return `<line x1="${pad}" y1="${yv}" x2="${w-pad}" y2="${yv}" stroke="#e5e7eb" stroke-width="1"/>`;
+    }).join('');
+    const areaPoints = `${xFn(0)},${h-pad} ${realPoints} ${xFn(allVals.length-1)},${h-pad}`;
+    svgContent += `<polygon points="${areaPoints}" fill="rgba(156,163,175,0.1)"/>`;
+    svgContent += `<polyline points="${realPoints}" fill="none" stroke="#6b7280" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const predLine = `${xFn(allVals.length-1)},${yFn(allVals[allVals.length-1])} ${predPoints}`;
+    svgContent += `<polyline points="${predLine}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6,4"/>`;
+    svgContent += allVals.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="3.5" fill="#6b7280" stroke="#fff" stroke-width="1.5"/>`).join('');
+    svgContent += predicted.map((v,i) => `<circle cx="${xFn(allVals.length+i)}" cy="${yFn(v)}" r="3" fill="none" stroke="#9ca3af" stroke-width="2"/>`).join('');
+    const mlabels = ['J','F','M','A','M','J','J','A','S','O','N','D','J*','F*','M*'];
+    svgContent += all.map((_,i) => `<text x="${xFn(i)}" y="${h-2}" text-anchor="middle" fill="#9ca3af" font-size="9">${mlabels[i]}</text>`).join('');
+    lineChart.innerHTML = svgContent;
+  }
+}
+
+function renderSatisfactionCharts() {
+  // Satisfaction breakdown
+  const satData = [{stars:5,count:112},{stars:4,count:52},{stars:3,count:18},{stars:2,count:5},{stars:1,count:2}];
+  const satMax = 112;
+  const satChart = document.getElementById('satChart');
+  if (satChart) {
+    satChart.innerHTML = satData.map(d => `
+      <div class="sat-row" style="margin-bottom:8px">
+        <div class="sat-star-label" style="font-size:12px;color:#6b7280;width:50px">${'★'.repeat(d.stars)}</div>
+        <div class="sat-track" style="flex:1;height:6px;background:#e5e7eb;border-radius:3px"><div class="sat-fill" style="height:100%;border-radius:3px;background:#6b7280;width:${(d.count/satMax)*100}%"></div></div>
+        <div class="sat-count" style="font-size:12px;color:#6b7280;width:30px;text-align:right">${d.count}</div>
+      </div>`).join('');
+  }
+
+  // Industry pie chart on satisfaction page
+  const industries = [
+    {label:'Banking',pct:28,color:'#6b7280'},
+    {label:'Government',pct:22,color:'#9ca3af'},
+    {label:'Healthcare',pct:18,color:'#d1d5db'},
+    {label:'Retail',pct:15,color:'#374151'},
+    {label:'Telecom',pct:10,color:'#111827'},
+    {label:'Other',pct:7,color:'#e5e7eb'},
+  ];
+  let cumAngle = 0;
+  const paths = industries.map(d => {
+    const angle = (d.pct / 100) * 360;
+    const start = polarToXY(50, 50, 45, cumAngle);
+    cumAngle += angle;
+    const end = polarToXY(50, 50, 45, cumAngle);
+    const large = angle > 180 ? 1 : 0;
+    return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${d.color}" stroke="#fff" stroke-width="1.5"/>`;
+  });
+  const satPie = document.getElementById('satPieChart');
+  if (satPie) satPie.innerHTML = paths.join('');
+  const satLegend = document.getElementById('satPieLegend');
+  if (satLegend) satLegend.innerHTML = industries.map(d =>
+    `<div class="admin-legend-item"><div class="admin-legend-dot" style="background:${d.color}"></div><span>${d.label} ${d.pct}%</span></div>`
+  ).join('');
 }
 
 // ============================================
@@ -348,12 +555,8 @@ async function doLogin() {
 // ============================================
 
 async function loadDashboard() {
-  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-GB', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  // Render the static admin overview charts immediately
+  renderAdminDashboard();
   
   try {
     await Promise.all([

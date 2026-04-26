@@ -34,6 +34,7 @@
   /* SECTIONS */
   .page { display: none; padding-top: 64px; min-height: 100vh; }
   .page.active { display: block; }
+  #dashboard.page { padding-top: 0; }
 
   /* HERO */
   .hero { position: relative; padding: 100px 40px 80px; text-align: center; overflow: hidden; }
@@ -211,6 +212,168 @@
   .login-hint { font-size: 12px; color: var(--muted); margin-top: 16px; text-align: center; }
   .login-hint code { color: var(--accent); }
   .err-msg { display: none; color: var(--warn); font-size: 13px; margin-top: 12px; text-align: center; }
+
+  /* ============================================ */
+  /* ADMIN DASHBOARD LAYOUT                       */
+  /* ============================================ */
+  .admin-layout { display: flex; min-height: 100vh; background: #f5f6f8; }
+  .admin-sidebar { width: 180px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; transition: transform 0.3s; }
+  .admin-sidebar-logo { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .admin-sidebar-logo .logo-icon { width: 36px; height: 36px; background: rgba(0,201,167,0.15); border: 1px solid rgba(0,201,167,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .admin-sidebar-logo .logo-icon svg { width: 20px; height: 20px; }
+  .admin-sidebar-logo h2 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+  .admin-sidebar-logo p { font-size: 10px; color: rgba(255,255,255,0.5); margin: 2px 0 0; }
+  .admin-sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+  .admin-sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 18px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; cursor: pointer; }
+  .admin-sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
+  .admin-sidebar-nav a.active { color: #fff; background: rgba(0,201,167,0.12); border-left-color: #00C9A7; }
+  .admin-sidebar-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .admin-sidebar-nav .nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 16px; }
+  .admin-main { flex: 1; margin-left: 180px; display: flex; flex-direction: column; min-height: 100vh; }
+  .admin-topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 56px; background: #fff; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 100; }
+  .admin-topbar-left { display: flex; align-items: center; gap: 16px; }
+  .admin-hamburger { background: none; border: none; cursor: pointer; color: #374151; padding: 4px; display: flex; align-items: center; justify-content: center; }
+  .admin-hamburger svg { width: 22px; height: 22px; }
+  .admin-topbar-right { display: flex; align-items: center; gap: 16px; }
+  .admin-topbar-right .notif-btn { background: none; border: none; cursor: pointer; color: #6b7280; position: relative; }
+  .admin-topbar-right .notif-btn svg { width: 20px; height: 20px; }
+  .admin-topbar-user { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .admin-topbar-user .avatar { width: 32px; height: 32px; background: #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .admin-topbar-user .avatar svg { width: 18px; height: 18px; color: #9ca3af; }
+  .admin-topbar-user span { font-size: 13px; font-weight: 600; color: #374151; }
+  .admin-content { flex: 1; padding: 32px; overflow-y: auto; }
+  .admin-sub-page { display: none; }
+  .admin-sub-page.active { display: block; }
+
+  /* Admin page titles */
+  .admin-page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 4px; }
+  .admin-page-sub { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
+  .admin-breadcrumb { font-size: 12px; color: #9ca3af; margin-bottom: 24px; }
+  .admin-breadcrumb a { color: #6b7280; text-decoration: none; }
+  .admin-breadcrumb a:hover { color: #00C9A7; }
+
+  /* Admin KPI cards */
+  .admin-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .admin-kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+  .admin-kpi .kpi-icon { width: 44px; height: 44px; background: #f3f4f6; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .admin-kpi .kpi-icon svg { width: 22px; height: 22px; color: #6b7280; }
+  .admin-kpi .kpi-info { flex: 1; }
+  .admin-kpi .kpi-info .label { font-size: 12px; color: #6b7280; font-weight: 500; }
+  .admin-kpi .kpi-info .value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #111827; line-height: 1.2; }
+  .admin-kpi .kpi-info .change { font-size: 12px; color: #10b981; }
+
+  /* Admin chart cards */
+  .admin-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .admin-chart-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
+  .admin-chart-card h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+
+  /* Admin tables */
+  .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .admin-card-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
+  .admin-card-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
+  .admin-data-table { width: 100%; border-collapse: collapse; }
+  .admin-data-table thead { background: #f9fafb; }
+  .admin-data-table th { padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+  .admin-data-table td { padding: 12px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .admin-data-table tbody tr:last-child td { border-bottom: none; }
+  .admin-data-table tbody tr:hover { background: #f9fafb; }
+
+  /* Admin status badges (light theme) */
+  .admin-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .admin-badge.pending { background: #fef3c7; color: #92400e; }
+  .admin-badge.confirmed { background: #d1fae5; color: #065f46; }
+  .admin-badge.cancelled { background: #fee2e2; color: #991b1b; }
+  .admin-badge.in-progress { background: #dbeafe; color: #1e40af; }
+  .admin-badge.reviewed { background: #e0e7ff; color: #3730a3; }
+  .admin-badge.completed { background: #d1fae5; color: #065f46; }
+
+  /* Admin filter bar */
+  .admin-filters { display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; }
+  .admin-filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .admin-filter-group label { font-size: 12px; font-weight: 600; color: #6b7280; }
+  .admin-filter-group input, .admin-filter-group select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #374151; font-family: 'DM Sans', sans-serif; outline: none; min-width: 180px; }
+  .admin-filter-group input:focus, .admin-filter-group select:focus { border-color: #00C9A7; box-shadow: 0 0 0 2px rgba(0,201,167,0.1); }
+  .admin-filter-btn { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 13px; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .admin-filter-btn:hover { border-color: #00C9A7; color: #00C9A7; }
+  .admin-filter-btn svg { width: 16px; height: 16px; }
+
+  /* Admin pagination */
+  .admin-pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid #e5e7eb; }
+  .admin-pagination .info { font-size: 13px; color: #6b7280; }
+  .admin-pagination .pages { display: flex; gap: 4px; }
+  .admin-pagination .pages button { background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #374151; cursor: pointer; min-width: 32px; font-family: 'DM Sans', sans-serif; }
+  .admin-pagination .pages button:hover { border-color: #00C9A7; }
+  .admin-pagination .pages button.active { background: #111827; color: #fff; border-color: #111827; }
+
+  /* Admin actions */
+  .admin-action-btn { background: none; border: none; cursor: pointer; color: #6b7280; padding: 4px; border-radius: 4px; transition: color 0.2s; }
+  .admin-action-btn:hover { color: #111827; }
+  .admin-action-btn svg { width: 18px; height: 18px; }
+
+  /* Admin view link */
+  .admin-view-link { font-size: 13px; color: #00C9A7; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .admin-view-link:hover { opacity: 0.8; }
+
+  /* Settings page */
+  .settings-layout { display: flex; gap: 24px; }
+  .settings-tabs { width: 200px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; flex-shrink: 0; align-self: flex-start; }
+  .settings-tabs a { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 13px; color: #374151; text-decoration: none; border-left: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
+  .settings-tabs a:hover { background: #f9fafb; }
+  .settings-tabs a.active { background: #f0fdf4; color: #00C9A7; border-left-color: #00C9A7; font-weight: 600; }
+  .settings-tabs a svg { width: 16px; height: 16px; color: #9ca3af; }
+  .settings-content { flex: 1; }
+  .settings-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .settings-section h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .settings-field { display: flex; flex-direction: column; gap: 6px; }
+  .settings-field label { font-size: 12px; font-weight: 600; color: #374151; }
+  .settings-field input, .settings-field select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #374151; font-family: 'DM Sans', sans-serif; outline: none; }
+  .settings-field input:focus, .settings-field select:focus { border-color: #00C9A7; }
+  .settings-save-btn { background: #111827; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; float: right; }
+  .settings-save-btn:hover { background: #1f2937; }
+  .settings-toggle { display: flex; align-items: center; justify-content: space-between; }
+  .toggle-switch { position: relative; width: 44px; height: 24px; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 12px; transition: 0.3s; }
+  .toggle-slider:before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
+  .toggle-switch input:checked + .toggle-slider { background: #00C9A7; }
+  .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+  /* Export page */
+  .export-step { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
+  .export-step h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+  .export-btn { background: #374151; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 8px; margin: 0 auto; }
+  .export-btn:hover { background: #1f2937; }
+  .export-btn svg { width: 18px; height: 18px; }
+
+  /* Admin pie chart for overview */
+  .admin-pie-wrapper { display: flex; gap: 24px; align-items: center; }
+  .admin-pie-svg { width: 140px; height: 140px; flex-shrink: 0; }
+  .admin-pie-legend { display: flex; flex-direction: column; gap: 8px; }
+  .admin-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; }
+  .admin-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Admin bar chart */
+  .admin-bar-chart { width: 100%; height: 200px; display: flex; align-items: flex-end; gap: 12px; padding-top: 10px; }
+  .admin-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .admin-bar { width: 100%; border-radius: 4px 4px 0 0; background: #d1d5db; transition: opacity 0.2s; }
+  .admin-bar:hover { opacity: 0.8; }
+  .admin-bar-label { font-size: 11px; color: #9ca3af; white-space: nowrap; }
+
+  /* Admin footer */
+  .admin-footer { padding: 20px 32px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #9ca3af; background: #fff; }
+  .admin-footer a { color: #6b7280; text-decoration: none; margin-left: 16px; }
+  .admin-footer a:hover { color: #00C9A7; }
+
+  /* Admin overrides for reused chart elements */
+  .admin-layout .conversion-row { display: flex; justify-content: space-between; align-items: center; }
+  .admin-layout .conv-label { font-size: 12px; color: #374151; }
+  .admin-layout .conv-bar-wrap { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; margin: 0 12px; }
+  .admin-layout .conv-bar-fill { height: 100%; border-radius: 4px; }
+  .admin-layout .conv-pct { font-size: 13px; font-weight: 700; }
+  .admin-layout .sat-row { display: flex; align-items: center; gap: 10px; }
+  .admin-layout .sat-track { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; }
+  .admin-layout .sat-fill { height: 100%; border-radius: 3px; }
 
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
@@ -500,7 +663,7 @@
       <p>Sign in to access the analytics dashboard and service request management.</p>
       <div class="form-group" style="margin-bottom:16px">
         <label>Email Address</label>
-        <input type="email" id="lemail" placeholder="admin@cybernova.co.bw" value="admin@cybernova.co.bw">
+        <input type="email" id="lemail" placeholder="admin@example.com" value="admin@cybernova.co.bw">
       </div>
       <div class="form-group">
         <label>Password</label>
@@ -515,109 +678,616 @@
 
 <!-- DASHBOARD -->
 <div id="dashboard" class="page">
-  <div class="dash-header">
-    <div>
-      <div class="dash-title">Analytics Dashboard</div>
-      <div class="dash-sub">CyberNova Analytics Ltd — Service Intelligence Overview</div>
-    </div>
-    <div>
-      <div class="dash-date" id="dashDate"></div>
-      <button class="btn-secondary" style="margin-top:8px;font-size:13px;padding:8px 16px" onclick="showPage('home')">← Back to Site</button>
-    </div>
-  </div>
-
-  <div class="dash-grid">
-    <div class="kpi-card">
-      <div class="kpi-label">Total Service Requests</div>
-      <div class="kpi-value">247</div>
-      <div class="kpi-change">↑ 18% vs last month</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Webinar Registrations</div>
-      <div class="kpi-value">578</div>
-      <div class="kpi-change">↑ 32% vs last month</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Conversion Rate</div>
-      <div class="kpi-value">64%</div>
-      <div class="kpi-change">↑ 5pp vs last month</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Avg. Satisfaction</div>
-      <div class="kpi-value">4.7</div>
-      <div class="kpi-change">↑ 0.2 vs last month</div>
-    </div>
-  </div>
-
-  <div class="charts-row">
-    <!-- Monthly requests bar chart -->
-    <div class="chart-card">
-      <h3>Monthly Service Requests</h3>
-      <div class="chart-canvas" id="barChart"></div>
-    </div>
-    <!-- Industry pie chart -->
-    <div class="chart-card">
-      <h3>Industry Distribution of Clients</h3>
-      <div class="pie-wrapper">
-        <svg class="pie-svg" viewBox="0 0 100 100" id="pieChart"></svg>
-        <div class="pie-legend" id="pieLegend"></div>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="admin-sidebar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00C9A7" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <h2>CyberNova</h2>
+        <p>Cybersecurity Solutions</p>
       </div>
-    </div>
-  </div>
+      <nav class="admin-sidebar-nav">
+        <a class="active" onclick="showAdminPage('admin-overview')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Overview
+        </a>
+        <a onclick="showAdminPage('admin-service-requests')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Service Requests
+        </a>
+        <a onclick="showAdminPage('admin-webinar-regs')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Webinar Registrations
+        </a>
+        <a onclick="showAdminPage('admin-analytics')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </a>
+        <a onclick="showAdminPage('admin-satisfaction')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Satisfaction
+        </a>
+        <a onclick="showAdminPage('admin-export')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </a>
+        <div class="nav-divider"></div>
+        <a onclick="showAdminPage('admin-settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Settings
+        </a>
+        <a onclick="adminLogout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </a>
+      </nav>
+    </aside>
 
-  <div class="charts-row three">
-    <!-- Geographic distribution -->
-    <div class="chart-card">
-      <h3>Geographic Distribution</h3>
-      <div id="geoChart"></div>
-    </div>
-    <!-- Conversion funnel -->
-    <div class="chart-card">
-      <h3>Conversion Funnel</h3>
-      <div id="convChart"></div>
-    </div>
-    <!-- Satisfaction -->
-    <div class="chart-card">
-      <h3>Customer Satisfaction</h3>
-      <div class="sat-score">4.7</div>
-      <div class="sat-stars">★★★★★</div>
-      <div class="sat-sub">Based on 189 reviews</div>
-      <div class="sat-breakdown" id="satChart"></div>
-    </div>
-  </div>
-
-  <!-- Trend -->
-  <div style="padding: 0 40px 40px">
-    <div class="chart-card">
-      <h3>Request Trend — Last 12 Months &nbsp;<span style="font-size:12px;color:var(--accent);font-weight:400">▲ Predictive trend indicator (next 3 months shown dotted)</span></h3>
-      <svg class="line-svg" id="lineChart" viewBox="0 0 800 160" preserveAspectRatio="none"></svg>
-    </div>
-  </div>
-
-  <!-- Admin Management Tables -->
-  <div class="admin-table-section">
-    <div class="table-wrapper">
-      <div class="table-header">
-        <h3>📋 Service Request Management</h3>
+    <!-- Main content -->
+    <div class="admin-main">
+      <!-- Top bar -->
+      <div class="admin-topbar">
+        <div class="admin-topbar-left">
+          <button class="admin-hamburger" onclick="toggleAdminSidebar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="admin-topbar-right">
+          <button class="notif-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <div class="admin-topbar-user">
+            <div class="avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <span>Admin User</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
       </div>
-      <div id="serviceRequestsTable">
-        <div class="empty-state">Loading service requests...</div>
-      </div>
-    </div>
-  </div>
 
-  <div class="admin-table-section">
-    <div class="table-wrapper">
-      <div class="table-header">
-        <h3>🎓 Webinar Registrations</h3>
-      </div>
-      <div id="webinarRegistrationsTable">
-        <div class="empty-state">Loading webinar registrations...</div>
-      </div>
-    </div>
-  </div>
+      <!-- Content area -->
+      <div class="admin-content">
 
-  <footer>© 2025 CyberNova Analytics Ltd — Confidential Dashboard</footer>
+        <!-- ==================== OVERVIEW PAGE ==================== -->
+        <div id="admin-overview" class="admin-sub-page active">
+          <h1 class="admin-page-title">Admin Dashboard Overview</h1>
+          <div class="admin-kpi-row">
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Total Service Requests</div>
+                <div class="value" id="ovKpiRequests">245</div>
+                <div class="change">↑ 12% from last month</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Webinar Registrations</div>
+                <div class="value" id="ovKpiWebinars">128</div>
+                <div class="change">↑ 8% from last month</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Conversion Rate</div>
+                <div class="value" id="ovKpiConversion">24.5%</div>
+                <div class="change">↑ 9% from last month</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Satisfaction Score</div>
+                <div class="value" id="ovKpiSatisfaction">4.6 / 5</div>
+                <div class="change">↑ 3% from last month</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-charts-row">
+            <div class="admin-chart-card">
+              <h3>Monthly Service Requests</h3>
+              <div class="admin-bar-chart" id="barChart"></div>
+            </div>
+            <div class="admin-chart-card">
+              <h3>Requests by Status</h3>
+              <div class="admin-pie-wrapper">
+                <svg class="admin-pie-svg" viewBox="0 0 100 100" id="pieChart"></svg>
+                <div class="admin-pie-legend" id="pieLegend"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-charts-row">
+            <!-- Recent Service Requests -->
+            <div class="admin-card" style="margin-bottom:0">
+              <div class="admin-card-header"><h3>Recent Service Requests</h3></div>
+              <div id="overviewServiceTable">
+                <table class="admin-data-table">
+                  <thead><tr><th>ID</th><th>Client Name</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>#SR-245</td><td>Acme Corporation</td><td>Risk Assessment</td><td>20 May 2025</td><td><span class="admin-badge pending">Pending</span></td></tr>
+                    <tr><td>#SR-244</td><td>TechSolutions Ltd.</td><td>Penetration Testing</td><td>19 May 2025</td><td><span class="admin-badge in-progress">In Progress</span></td></tr>
+                    <tr><td>#SR-243</td><td>Global Industries</td><td>Security Audit</td><td>18 May 2025</td><td><span class="admin-badge reviewed">Reviewed</span></td></tr>
+                    <tr><td>#SR-242</td><td>DataSecure Inc.</td><td>Incident Response</td><td>17 May 2025</td><td><span class="admin-badge completed">Completed</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding:12px 20px; border-top:1px solid #e5e7eb">
+                <a class="admin-view-link" onclick="showAdminPage('admin-service-requests')">View All Service Requests →</a>
+              </div>
+            </div>
+
+            <!-- Upcoming Webinars -->
+            <div class="admin-card" style="margin-bottom:0">
+              <div class="admin-card-header"><h3>Upcoming Webinars</h3></div>
+              <div id="overviewWebinarTable">
+                <table class="admin-data-table">
+                  <thead><tr><th>Webinar Title</th><th>Date & Time</th><th>Registrations</th></tr></thead>
+                  <tbody>
+                    <tr><td>Cyber Threats in 2025: What Businesses Must Know</td><td>28 May 2025, 10:00 AM</td><td>45</td></tr>
+                    <tr><td>Building a Strong Security Culture</td><td>10 Jun 2025, 02:00 PM</td><td>38</td></tr>
+                    <tr><td>Cloud Security Best Practices</td><td>24 Jun 2025, 11:00 AM</td><td>45</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div style="padding:12px 20px; border-top:1px solid #e5e7eb">
+                <a class="admin-view-link" onclick="showAdminPage('admin-webinar-regs')">View All Webinars →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SERVICE REQUESTS PAGE ==================== -->
+        <div id="admin-service-requests" class="admin-sub-page">
+          <h1 class="admin-page-title">Service Requests</h1>
+          <p class="admin-page-sub">View and manage all service requests submitted by clients.</p>
+
+          <div class="admin-filters">
+            <div class="admin-filter-group">
+              <input type="text" id="srSearch" placeholder="Search by client name, email, or service..." style="min-width:260px">
+            </div>
+            <div class="admin-filter-group">
+              <label>Status</label>
+              <select id="srStatusFilter">
+                <option value="">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="admin-filter-group">
+              <label>Service Type</label>
+              <select id="srServiceFilter">
+                <option value="">All Services</option>
+                <option value="Risk Assessment">Risk Assessment</option>
+                <option value="Penetration Testing">Penetration Testing</option>
+                <option value="Security Audit">Security Audit</option>
+                <option value="Incident Response">Incident Response</option>
+                <option value="Cloud Security">Cloud Security</option>
+                <option value="Vulnerability Assessment">Vulnerability Assessment</option>
+                <option value="Compliance Review">Compliance Review</option>
+              </select>
+            </div>
+            <div class="admin-filter-group">
+              <label>Date Range</label>
+              <input type="text" id="srDateRange" placeholder="Select date range" style="min-width:160px">
+            </div>
+            <button class="admin-filter-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filters
+            </button>
+          </div>
+
+          <div class="admin-card">
+            <div id="serviceRequestsTable">
+              <table class="admin-data-table">
+                <thead>
+                  <tr><th>ID</th><th>Client Name</th><th>Email</th><th>Service Type</th><th>Date Submitted</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>SR-245</td><td>Acme Corporation</td><td>contact@acme.com</td><td>Risk Assessment</td><td>20 May 2025<br>10:30 AM</td><td><span class="admin-badge pending">Pending</span></td><td>—</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-244</td><td>TechSolutions Ltd.</td><td>info@techsolutions.com</td><td>Penetration Testing</td><td>19 May 2025<br>02:15 PM</td><td><span class="admin-badge in-progress">In Progress</span></td><td>Sarah Johnson</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-243</td><td>Global Industries</td><td>security@globalind.com</td><td>Security Audit</td><td>18 May 2025<br>11:45 AM</td><td><span class="admin-badge reviewed">Reviewed</span></td><td>Michael Lee</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-242</td><td>DataSecure Inc.</td><td>hello@datasecure.com</td><td>Incident Response</td><td>17 May 2025<br>09:20 AM</td><td><span class="admin-badge completed">Completed</span></td><td>David Kim</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-241</td><td>Innovate Systems</td><td>ops@innovatesys.com</td><td>Cloud Security</td><td>16 May 2025<br>04:30 PM</td><td><span class="admin-badge pending">Pending</span></td><td>—</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-240</td><td>NextGen Retail</td><td>it@nextgenretail.com</td><td>Vulnerability Assessment</td><td>15 May 2025<br>01:10 PM</td><td><span class="admin-badge in-progress">In Progress</span></td><td>Sarah Johnson</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>SR-239</td><td>BrightWave</td><td>contact@brightwave.com</td><td>Compliance Review</td><td>14 May 2025<br>10:05 AM</td><td><span class="admin-badge reviewed">Reviewed</span></td><td>Michael Lee</td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="admin-pagination">
+              <div class="info">Showing 1 to 7 of 245 results</div>
+              <div class="pages">
+                <button>&lt;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>...</button>
+                <button>35</button>
+                <button>&gt;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== WEBINAR REGISTRATIONS PAGE ==================== -->
+        <div id="admin-webinar-regs" class="admin-sub-page">
+          <h1 class="admin-page-title">Webinar Registration</h1>
+          <div class="admin-breadcrumb">
+            <a href="#">Services & Webinars</a> &gt; <a href="#">Webinars</a> &gt; <a href="#">Best Practices for Incident Response</a> &gt; Registrations
+          </div>
+
+          <div class="admin-kpi-row">
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Total Registrations</div>
+                <div class="value" id="wrKpiTotal">95</div>
+                <div class="change">of 150 capacity</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Confirmed</div>
+                <div class="value" id="wrKpiConfirmed">82</div>
+                <div class="change">86.3% of total</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Pending</div>
+                <div class="value" id="wrKpiPending">10</div>
+                <div class="change">10.5% of total</div>
+              </div>
+            </div>
+            <div class="admin-kpi">
+              <div class="kpi-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div class="kpi-info">
+                <div class="label">Cancelled</div>
+                <div class="value" id="wrKpiCancelled">3</div>
+                <div class="change">3.2% of total</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-filters">
+            <div class="admin-filter-group">
+              <label>Search</label>
+              <input type="text" id="wrSearch" placeholder="Search by name or email...">
+            </div>
+            <div class="admin-filter-group">
+              <label>Registration Status</label>
+              <select id="wrStatusFilter">
+                <option value="">All Statuses</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="admin-filter-group">
+              <label>Date Registered</label>
+              <input type="text" id="wrDateRange" placeholder="01 May 2025 - 31 May 2025" style="min-width:200px">
+            </div>
+            <div class="admin-filter-group">
+              <label>Export</label>
+              <button class="admin-filter-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+            </div>
+            <button class="admin-filter-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+              Filters
+            </button>
+          </div>
+
+          <div class="admin-card">
+            <div id="webinarRegistrationsTable">
+              <table class="admin-data-table">
+                <thead>
+                  <tr><th>ID</th><th>Registrant Name</th><th>Email</th><th>Organization</th><th>Registration Date</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>REG-095</td><td>Michael Lee</td><td>michael.lee@techsolutions.com</td><td>TechSolutions Ltd.</td><td>20 May 2025, 10:15 AM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-094</td><td>Sarah Johnson</td><td>sarah.johnson@acmecorp.com</td><td>Acme Corporation</td><td>20 May 2025, 09:42 AM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-093</td><td>David Kim</td><td>david.kim@datasecure.com</td><td>DataSecure Inc.</td><td>19 May 2025, 04:30 PM</td><td><span class="admin-badge pending">Pending</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-092</td><td>Emily Carter</td><td>emily.carter@innovatesys.com</td><td>Innovate Systems</td><td>19 May 2025, 03:05 PM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-091</td><td>James Wilson</td><td>james.wilson@globalind.com</td><td>Global Industries</td><td>19 May 2025, 11:20 AM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-090</td><td>Lisa Chen</td><td>lisa.chen@nextgenretail.com</td><td>NextGen Retail</td><td>18 May 2025, 05:50 PM</td><td><span class="admin-badge cancelled">Cancelled</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-089</td><td>Robert Brown</td><td>robert.brown@brightwave.com</td><td>BrightWave</td><td>18 May 2025, 02:18 PM</td><td><span class="admin-badge pending">Pending</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                  <tr><td>REG-088</td><td>Aisha Rahman</td><td>aisha.rahman@cyberfort.com</td><td>CyberFort Solutions</td><td>18 May 2025, 10:05 AM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="admin-pagination">
+              <div class="info">Showing 1 to 8 of 95 registrations</div>
+              <div class="pages">
+                <button>&lt;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>...</button>
+                <button>12</button>
+                <button>&gt;</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== ANALYTICS PAGE ==================== -->
+        <div id="admin-analytics" class="admin-sub-page">
+          <h1 class="admin-page-title">Analytics</h1>
+          <p class="admin-page-sub">Detailed analytics and insights across all services.</p>
+
+          <div class="admin-charts-row">
+            <div class="admin-chart-card">
+              <h3>Geographic Distribution</h3>
+              <div id="geoChart"></div>
+            </div>
+            <div class="admin-chart-card">
+              <h3>Conversion Funnel</h3>
+              <div id="convChart"></div>
+            </div>
+          </div>
+
+          <div class="admin-chart-card" style="margin-bottom:24px">
+            <h3>Request Trend — Last 12 Months <span style="font-size:12px;color:#10b981;font-weight:400">▲ Predictive trend (next 3 months dotted)</span></h3>
+            <svg class="line-svg" id="lineChart" viewBox="0 0 800 160" preserveAspectRatio="none" style="width:100%;height:160px"></svg>
+          </div>
+        </div>
+
+        <!-- ==================== SATISFACTION PAGE ==================== -->
+        <div id="admin-satisfaction" class="admin-sub-page">
+          <h1 class="admin-page-title">Customer Satisfaction</h1>
+          <p class="admin-page-sub">Monitor and analyze customer feedback and satisfaction scores.</p>
+
+          <div class="admin-charts-row">
+            <div class="admin-chart-card">
+              <h3>Overall Satisfaction</h3>
+              <div style="text-align:center;padding:20px 0">
+                <div class="sat-score" style="font-family:'Syne',sans-serif;font-size:56px;font-weight:800;color:#111827">4.7</div>
+                <div class="sat-stars" style="font-size:22px;margin:8px 0;color:#f59e0b">★★★★★</div>
+                <div class="sat-sub" style="font-size:13px;color:#6b7280">Based on 189 reviews</div>
+              </div>
+              <div class="sat-breakdown" id="satChart"></div>
+            </div>
+            <div class="admin-chart-card">
+              <h3>Industry Distribution of Clients</h3>
+              <div class="admin-pie-wrapper">
+                <svg class="admin-pie-svg" viewBox="0 0 100 100" id="satPieChart"></svg>
+                <div class="admin-pie-legend" id="satPieLegend"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== EXPORT CSV PAGE ==================== -->
+        <div id="admin-export" class="admin-sub-page">
+          <h1 class="admin-page-title">Export Data (CSV)</h1>
+          <p class="admin-page-sub">Select the data you want to export and download as a CSV file.</p>
+
+          <div class="export-step">
+            <h3>1. Select Data Type</h3>
+            <div class="admin-filter-group" style="width:100%">
+              <select id="exportDataType" style="width:100%;min-width:100%">
+                <option value="">Choose data type</option>
+                <option value="service_requests">Service Requests</option>
+                <option value="webinar_registrations">Webinar Registrations</option>
+                <option value="clients">Clients</option>
+                <option value="analytics">Analytics Data</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="export-step">
+            <h3>2. Date Range</h3>
+            <div style="display:flex;gap:16px;align-items:center">
+              <div class="admin-filter-group" style="flex:1">
+                <input type="date" id="exportStartDate" placeholder="Start date">
+              </div>
+              <span style="color:#6b7280;font-size:13px">to</span>
+              <div class="admin-filter-group" style="flex:1">
+                <input type="date" id="exportEndDate" placeholder="End date">
+              </div>
+            </div>
+          </div>
+
+          <div class="export-step">
+            <h3>3. Additional Filters (Optional)</h3>
+            <div class="admin-filter-group" style="width:100%">
+              <select id="exportFilter" style="width:100%;min-width:100%">
+                <option value="">Select filter (e.g., country, industry, status...)</option>
+                <option value="country">Country</option>
+                <option value="industry">Industry</option>
+                <option value="status">Status</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="text-align:center;margin:24px 0">
+            <button class="export-btn" onclick="exportCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+
+          <div class="admin-card">
+            <div class="admin-card-header"><h3>Recent Exports</h3></div>
+            <table class="admin-data-table">
+              <thead><tr><th>File Name</th><th>Data Type</th><th>Date Exported</th><th>Records</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>service_requests_2025-05-20.csv</td>
+                  <td>Service Requests</td>
+                  <td>20 May 2025 10:30 AM</td>
+                  <td>245</td>
+                  <td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button></td>
+                </tr>
+              </tbody>
+            </table>
+            <div style="padding:12px 20px;text-align:center;border-top:1px solid #e5e7eb">
+              <button class="admin-filter-btn" style="margin:0 auto">View All Exports</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SETTINGS PAGE ==================== -->
+        <div id="admin-settings" class="admin-sub-page">
+          <h1 class="admin-page-title">Settings</h1>
+          <p class="admin-page-sub">Manage platform settings and preferences.</p>
+
+          <div class="settings-layout">
+            <div class="settings-tabs">
+              <a class="active" onclick="showSettingsTab(this)">General <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a onclick="showSettingsTab(this)">Users & Roles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a onclick="showSettingsTab(this)">Notifications <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a onclick="showSettingsTab(this)">Security <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a onclick="showSettingsTab(this)">Integrations <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a onclick="showSettingsTab(this)">Audit Logs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+            </div>
+            <div class="settings-content">
+              <div class="settings-section">
+                <h3>General Settings</h3>
+                <div class="settings-grid">
+                  <div class="settings-field">
+                    <label>Platform Name</label>
+                    <input type="text" value="CyberNova">
+                  </div>
+                  <div class="settings-field">
+                    <label>Company Email</label>
+                    <input type="email" value="contact@cybernova.com">
+                  </div>
+                  <div class="settings-field">
+                    <label>Company Phone</label>
+                    <input type="tel" value="+1 (555) 123-4567">
+                  </div>
+                  <div class="settings-field">
+                    <label>Timezone</label>
+                    <select>
+                      <option>(UTC+00:00) Coordinated Universal Time</option>
+                      <option>(UTC+02:00) Central Africa Time</option>
+                      <option selected>(UTC+02:00) South Africa Standard Time</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="settings-field" style="margin-bottom:16px">
+                  <label>Company Logo</label>
+                  <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
+                    <div style="width:80px;height:80px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="width:32px;height:32px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                    <div>
+                      <p style="font-size:12px;color:#6b7280;margin-bottom:8px">Current logo<br>Recommended size: 200x200px (PNG, JPG)</p>
+                      <button class="admin-filter-btn" style="font-size:12px;padding:6px 12px">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Change Logo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div style="overflow:hidden"><button class="settings-save-btn" onclick="showToast('Settings saved!')">Save Changes</button></div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Date & Time Format</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+                  <div class="settings-field">
+                    <label>Date Format</label>
+                    <select>
+                      <option selected>DD MMM YYYY (20 May 2025)</option>
+                      <option>MM/DD/YYYY</option>
+                      <option>YYYY-MM-DD</option>
+                    </select>
+                  </div>
+                  <div class="settings-field">
+                    <label>Time Format</label>
+                    <select>
+                      <option selected>12-Hour (02:30 PM)</option>
+                      <option>24-Hour (14:30)</option>
+                    </select>
+                  </div>
+                  <div class="settings-field">
+                    <label>Week Starts On</label>
+                    <select>
+                      <option selected>Monday</option>
+                      <option>Sunday</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="overflow:hidden"><button class="settings-save-btn" onclick="showToast('Date format saved!')">Save Changes</button></div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Items Per Page</h3>
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <p style="font-size:13px;color:#6b7280;margin:0">Set the default number of items to display in tables.</p>
+                  <div style="display:flex;gap:12px;align-items:center">
+                    <select style="background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;color:#374151;font-family:'DM Sans',sans-serif">
+                      <option>10 items</option>
+                      <option selected>25 items</option>
+                      <option>50 items</option>
+                      <option>100 items</option>
+                    </select>
+                    <button class="settings-save-btn" style="float:none" onclick="showToast('Saved!')">Save Changes</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <h3>Maintenance Mode</h3>
+                <div class="settings-toggle">
+                  <p style="font-size:13px;color:#6b7280;margin:0">Enable maintenance mode to restrict access to the platform.</p>
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <label class="toggle-switch">
+                      <input type="checkbox">
+                      <span class="toggle-slider"></span>
+                    </label>
+                    <span style="font-size:13px;color:#6b7280">Disabled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /admin-content -->
+
+      <!-- Admin footer -->
+      <div class="admin-footer">
+        <span>&copy; 2025 CyberNova. All rights reserved.</span>
+        <div>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div><!-- /admin-main -->
+  </div><!-- /admin-layout -->
 </div>
 
 <div class="toast" id="toast"></div>
@@ -708,142 +1378,15 @@
 <script src="app.js"></script>
 
 <script>
-// Keep existing dashboard rendering functions for charts
-function renderDashboard() {
-  // This is now handled by loadDashboard() in app.js
-  // Keeping this function for compatibility
-}
-
 // Make modal functions globally accessible
 window.openWebinarModal = openWebinarModal;
 window.closeWebinarModal = closeWebinarModal;
 window.submitWebinarRegistration = submitWebinarRegistration;
 window.registerEvent = registerEvent;
 
-// Toast
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3000);
-}
-
-// Dashboard
+// Legacy renderDashboard - now handled by app.js admin chart renderers
 function renderDashboard() {
-  document.getElementById('dashDate').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
-
-  // Bar chart
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const vals = [28,34,22,40,38,55,47,62,70,58,78,85];
-  const maxV = Math.max(...vals);
-  const barChart = document.getElementById('barChart');
-  barChart.innerHTML = vals.map((v,i) => `
-    <div class="bar-group">
-      <div class="bar" style="height:${(v/maxV)*170}px;background:linear-gradient(180deg,var(--accent),rgba(0,201,167,0.4))" title="${months[i]}: ${v}"></div>
-      <div class="bar-label">${months[i]}</div>
-    </div>`).join('');
-
-  // Pie chart
-  const industries = [
-    {label:'Banking',pct:28,color:'#00C9A7'},
-    {label:'Government',pct:22,color:'#0088FF'},
-    {label:'Healthcare',pct:18,color:'#9B59B6'},
-    {label:'Retail',pct:15,color:'#FF6B35'},
-    {label:'Telecom',pct:10,color:'#F39C12'},
-    {label:'Other',pct:7,color:'#6A8A9A'},
-  ];
-  let cumAngle = 0;
-  const paths = industries.map(d => {
-    const angle = (d.pct / 100) * 360;
-    const start = polarToXY(50, 50, 45, cumAngle);
-    cumAngle += angle;
-    const end = polarToXY(50, 50, 45, cumAngle);
-    const large = angle > 180 ? 1 : 0;
-    return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${d.color}" stroke="var(--bg)" stroke-width="1.5"/>`;
-  });
-  document.getElementById('pieChart').innerHTML = paths.join('');
-  document.getElementById('pieLegend').innerHTML = industries.map(d =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${d.color}"></div><span>${d.label} ${d.pct}%</span></div>` 
-  ).join('');
-
-  function polarToXY(cx, cy, r, deg) {
-    const rad = (deg - 90) * Math.PI / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
-
-  // Geo chart
-  const geoData = [
-    {c:'Botswana',n:89},{c:'South Africa',n:72},{c:'Zimbabwe',n:35},{c:'Zambia',n:28},{c:'Namibia',n:14},{c:'Other',n:9}
-  ];
-  const gMax = geoData[0].n;
-  document.getElementById('geoChart').innerHTML = geoData.map(d => `
-    <div class="conversion-row">
-      <div class="conv-label" style="font-size:12px">${d.c}</div>
-      <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:${(d.n/gMax)*100}%;background:linear-gradient(90deg,var(--accent2),var(--accent))"></div></div>
-      <div class="conv-pct" style="color:var(--accent2)">${d.n}</div>
-    </div>`).join('');
-
-  // Conversion funnel
-  const funnel = [
-    {label:'Inquiries',pct:100},{label:'Qualified',pct:78},{label:'Proposal Sent',pct:70},{label:'In Negotiation',pct:68},{label:'Contracted',pct:64}
-  ];
-  document.getElementById('convChart').innerHTML = funnel.map(d => `
-    <div class="conversion-row">
-      <div class="conv-label">${d.label}</div>
-      <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:${d.pct}%"></div></div>
-      <div class="conv-pct">${d.pct}%</div>
-    </div>`).join('');
-
-  // Satisfaction
-  const satData = [{stars:5,count:112},{stars:4,count:52},{stars:3,count:18},{stars:2,count:5},{stars:1,count:2}];
-  const satMax = 112;
-  document.getElementById('satChart').innerHTML = satData.map(d => `
-    <div class="sat-row">
-      <div class="sat-star-label">${'★'.repeat(d.stars)}</div>
-      <div class="sat-track"><div class="sat-fill" style="width:${(d.count/satMax)*100}%"></div></div>
-      <div class="sat-count">${d.count}</div>
-    </div>`).join('');
-
-  // Line chart
-  const allVals = [28,34,22,40,38,55,47,62,70,58,78,85];
-  const predicted = [92,101,110];
-  const all = [...allVals,...predicted];
-  const lMax = Math.max(...all);
-  const lMin = 0;
-  const w = 800, h = 160, pad = 20;
-  const x = (i) => pad + (i / (all.length - 1)) * (w - 2*pad);
-  const y = (v) => h - pad - ((v - lMin) / (lMax - lMin)) * (h - 2*pad);
-
-  const realPoints = allVals.map((v,i) => `${x(i)},${y(v)}`).join(' ');
-  const predPoints = predicted.map((v,i) => `${x(allVals.length-1+i)},${y(v)}`).join(' ');
-
-  const svg = document.getElementById('lineChart');
-  // Grid lines
-  let svgContent = [3,2,1].map(n => {
-    const yv = y(lMin + n * (lMax-lMin)/3);
-    return `<line x1="${pad}" y1="${yv}" x2="${w-pad}" y2="${yv}" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>`;
-  }).join('');
-
-  // Area fill
-  const areaPoints = `${x(0)},${h-pad} ${realPoints} ${x(allVals.length-1)},${h-pad}`;
-  svgContent += `<polygon points="${areaPoints}" fill="rgba(0,201,167,0.06)"/>`;
-
-  // Real line
-  svgContent += `<polyline points="${realPoints}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-
-  // Predicted line (dotted)
-  const predLine = `${x(allVals.length-1)},${y(allVals[allVals.length-1])} ${predPoints}`;
-  svgContent += `<polyline points="${predLine}" fill="none" stroke="rgba(0,201,167,0.5)" stroke-width="2" stroke-dasharray="6,4"/>`;
-
-  // Dots
-  svgContent += allVals.map((v,i) => `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="var(--accent)" stroke="var(--bg)" stroke-width="1.5"/>`).join('');
-  svgContent += predicted.map((v,i) => `<circle cx="${x(allVals.length+i)}" cy="${y(v)}" r="3" fill="none" stroke="rgba(0,201,167,0.7)" stroke-width="2"/>`).join('');
-
-  // Labels
-  const mlabels = ['J','F','M','A','M','J','J','A','S','O','N','D','J*','F*','M*'];
-  svgContent += all.map((_,i) => `<text x="${x(i)}" y="${h-2}" text-anchor="middle" fill="rgba(106,138,154,0.7)" font-size="9">${mlabels[i]}</text>`).join('');
-
-  svg.innerHTML = svgContent;
+  renderAdminDashboard();
 }
 </script>
 </body>
