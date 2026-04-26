@@ -21,6 +21,7 @@ from app.schemas.dashboard import (
 )
 from app.schemas.customer_feedback import CustomerFeedbackCreate, CustomerFeedbackResponse
 from app.services.dashboard_service import DashboardService
+from app.services.feedback_service import FeedbackService
 
 router = APIRouter()
 
@@ -165,6 +166,22 @@ def update_service_request_status(
     
     db.commit()
     db.refresh(req)
+    
+    # Auto-trigger feedback email when service is completed
+    if status_update.status == "confirmed_contract":
+        try:
+            service_names = ", ".join([s.service_name for s in req.services]) or "Cybersecurity Service"
+            FeedbackService.create_feedback_token(
+                db=db,
+                email=req.email,
+                full_name=req.full_name,
+                feedback_type="service",
+                request_id=req.id,
+                service_name=service_names,
+            )
+        except Exception as e:
+            # Don't fail the status update if email fails
+            print(f"Warning: Failed to send feedback email: {e}")
     
     return ServiceRequestResponse(
         id=req.id,

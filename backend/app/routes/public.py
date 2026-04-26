@@ -7,6 +7,7 @@ from app.models.service_request import ServiceRequest, ServiceRequestService
 from app.models.webinar import Webinar, WebinarRegistration
 from app.schemas.service_request import ServiceRequestCreate, ServiceRequestResponse
 from app.schemas.webinar import WebinarResponse, WebinarRegistrationCreate, WebinarRegistrationResponse
+from app.services.feedback_service import FeedbackService
 
 router = APIRouter()
 
@@ -138,6 +139,20 @@ def create_webinar_registration(registration: WebinarRegistrationCreate, db: Ses
             registered_at=db_registration.registered_at,
             webinar_title=webinar.title
         )
+        
+        # Send feedback request email for the webinar
+        try:
+            FeedbackService.create_feedback_token(
+                db=db,
+                email=registration.email,
+                full_name=registration.full_name,
+                feedback_type="webinar",
+                webinar_id=webinar.id,
+                webinar_title=webinar.title,
+            )
+        except Exception as e:
+            # Don't fail registration if email fails
+            print(f"Warning: Failed to send feedback email: {e}")
         
         return response_data
         

@@ -19,6 +19,13 @@ from app.schemas.dashboard import (
     CustomerSatisfactionMetrics
 )
 from app.schemas.customer_feedback import CustomerFeedbackCreate, CustomerFeedbackResponse
+from app.schemas.satisfaction_feedback import (
+    FeedbackTokenInfo,
+    SatisfactionFeedbackSubmit,
+    SatisfactionFeedbackResponse,
+    SatisfactionAnalytics,
+    FeedbackListItem
+)
 
 __all__ = [
     "AdminLogin",
@@ -38,5 +45,10 @@ __all__ = [
     "ConversionFunnel",
     "CustomerSatisfactionMetrics",
     "CustomerFeedbackCreate",
-    "CustomerFeedbackResponse"
+    "CustomerFeedbackResponse",
+    "FeedbackTokenInfo",
+    "SatisfactionFeedbackSubmit",
+    "SatisfactionFeedbackResponse",
+    "SatisfactionAnalytics",
+    "FeedbackListItem"
 ]
