@@ -164,50 +164,44 @@ function renderAdminDashboard() {
   ).join('');
 }
 
-function renderAnalyticsCharts() {
+async function renderAnalyticsCharts() {
+  const token = localStorage.getItem('authToken');
+  const headers = { 'Authorization': `Bearer ${token}` };
+
   // Helper to render a line chart in an SVG
   function drawLineChart(svgId, data, labels, color) {
     const svg = document.getElementById(svgId);
-    if (!svg) return;
+    if (!svg || !data.length) return;
     const w = 500, h = 180, pad = 40, padR = 20, padB = 30;
-    const maxV = Math.max(...data);
-    const xFn = (i) => pad + (i / (data.length - 1)) * (w - pad - padR);
+    const maxV = Math.max(...data, 1);
+    const xFn = (i) => pad + (i / Math.max(data.length - 1, 1)) * (w - pad - padR);
     const yFn = (v) => h - padB - ((v / maxV) * (h - pad - padB));
     
     let s = '';
-    // Grid lines + Y labels
     for (let n = 0; n <= 4; n++) {
       const val = Math.round(maxV * n / 4);
       const yv = yFn(val);
       s += `<line x1="${pad}" y1="${yv}" x2="${w-padR}" y2="${yv}" stroke="#e5e7eb" stroke-width="1"/>`;
       s += `<text x="${pad-8}" y="${yv+4}" text-anchor="end" fill="#9ca3af" font-size="10">${val}</text>`;
     }
-    // Area fill
     const pts = data.map((v,i) => `${xFn(i)},${yFn(v)}`).join(' ');
     s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(156,163,175,0.08)"/>`;
-    // Line
     s += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-    // Dots
     s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5"/>`).join('');
-    // X labels
     s += labels.map((l,i) => `<text x="${xFn(i)}" y="${h-8}" text-anchor="middle" fill="#9ca3af" font-size="10">${l}</text>`).join('');
     svg.innerHTML = s;
   }
 
-  // Service Requests line chart
-  drawLineChart('analyticsLineChart1', [8,12,18,22,15,25,28], ['20 Apr','27 Apr','04 May','11 May','18 May','',''], '#374151');
-  // Webinar Registrations line chart
-  drawLineChart('analyticsLineChart2', [5,10,8,15,20,18,25], ['20 Apr','27 Apr','04 May','11 May','18 May','',''], '#374151');
-
-  // Helper for donut chart (ring, not filled)
+  // Helper for donut chart
   function drawDonut(svgId, legendId, data) {
     const svg = document.getElementById(svgId);
     const legend = document.getElementById(legendId);
-    if (!svg) return;
+    if (!svg || !data.length) return;
     let cumAngle = 0;
     const innerR = 28, outerR = 45;
     const paths = data.map(d => {
       const angle = (d.pct / 100) * 360;
+      if (angle === 0) return '';
       const s1 = polarToXY(50,50,outerR,cumAngle);
       const s2 = polarToXY(50,50,innerR,cumAngle);
       cumAngle += angle;
@@ -222,46 +216,80 @@ function renderAnalyticsCharts() {
     ).join('');
   }
 
-  // Status donut
-  drawDonut('analyticsStatusPie', 'analyticsStatusLegend', [
-    {label:'Completed',pct:48.4,count:62,color:'#374151'},
-    {label:'In Progress',pct:26.6,count:34,color:'#6b7280'},
-    {label:'Pending',pct:16.4,count:21,color:'#9ca3af'},
-    {label:'Cancelled',pct:8.6,count:11,color:'#d1d5db'},
-  ]);
+  try {
+    // Fetch all data in parallel from existing API endpoints
+    const [monthlyData, industryData, geoData, funnelData] = await Promise.all([
+      apiCall('/admin/dashboard/monthly-service-requests'),
+      apiCall('/admin/dashboard/industry-distribution'),
+      apiCall('/admin/dashboard/geographic-distribution'),
+      apiCall('/admin/dashboard/conversion-funnel'),
+    ]);
 
-  // Industry donut
-  drawDonut('analyticsIndustryPie', 'analyticsIndustryLegend', [
-    {label:'Technology',pct:28,count:28,color:'#374151'},
-    {label:'Finance',pct:22,count:22,color:'#6b7280'},
-    {label:'Healthcare',pct:16,count:16,color:'#9ca3af'},
-    {label:'Education',pct:12,count:12,color:'#d1d5db'},
-    {label:'Other',pct:22,count:22,color:'#e5e7eb'},
-  ]);
+    // Service Requests line chart — from monthly data
+    if (monthlyData.length) {
+      drawLineChart('analyticsLineChart1',
+        monthlyData.map(d => d.count),
+        monthlyData.map(d => d.month),
+        '#374151');
+    }
 
-  // Country horizontal bar chart
-  const countries = [
-    {c:'South Africa',n:41},{c:'United States',n:23},{c:'United Kingdom',n:18},{c:'Australia',n:9},{c:'Canada',n:7}
-  ];
-  const cMax = 50;
-  const countryChart = document.getElementById('analyticsCountryChart');
-  if (countryChart) {
-    countryChart.innerHTML = countries.map(d => `
-      <div style="display:flex;align-items:center;margin-bottom:14px">
-        <div style="font-size:12px;color:#374151;width:100px;flex-shrink:0">${d.c}</div>
-        <div style="flex:1;height:14px;background:#e5e7eb;border-radius:4px;margin:0 10px;position:relative">
-          <div style="height:100%;border-radius:4px;background:#374151;width:${(d.n/cMax)*100}%"></div>
-        </div>
-        <div style="font-size:12px;font-weight:600;color:#374151;width:30px;text-align:right">${d.n}</div>
-      </div>`).join('') +
-      `<div style="display:flex;justify-content:space-between;padding:0 110px 0 110px;margin-top:4px">
-        <span style="font-size:10px;color:#9ca3af">0</span>
-        <span style="font-size:10px;color:#9ca3af">10</span>
-        <span style="font-size:10px;color:#9ca3af">20</span>
-        <span style="font-size:10px;color:#9ca3af">30</span>
-        <span style="font-size:10px;color:#9ca3af">40</span>
-        <span style="font-size:10px;color:#9ca3af">50</span>
-      </div>`;
+    // Webinar Registrations line chart — fetch registrations and group by month
+    try {
+      const webRegs = await apiCall('/admin/webinar-registrations');
+      const monthCounts = {};
+      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      webRegs.forEach(r => {
+        const d = new Date(r.registered_at);
+        const key = monthNames[d.getMonth()];
+        monthCounts[key] = (monthCounts[key] || 0) + 1;
+      });
+      // Use same months as service requests for alignment
+      const webLabels = monthlyData.map(d => d.month);
+      const webValues = webLabels.map(m => monthCounts[m] || 0);
+      drawLineChart('analyticsLineChart2', webValues, webLabels, '#374151');
+    } catch(e) {
+      console.error('Webinar line chart error:', e);
+    }
+
+    // Status donut — from conversion funnel
+    const statusColors = ['#374151','#6b7280','#9ca3af','#d1d5db','#e5e7eb'];
+    if (funnelData.stages && funnelData.stages.length) {
+      const total = funnelData.stages[0].count || 1;
+      drawDonut('analyticsStatusPie', 'analyticsStatusLegend',
+        funnelData.stages.map((s, i) => ({
+          label: s.label, pct: s.percentage, count: s.count, color: statusColors[i] || '#e5e7eb'
+        }))
+      );
+    }
+
+    // Industry donut — from industry distribution
+    const indColors = ['#374151','#6b7280','#9ca3af','#d1d5db','#e5e7eb','#f3f4f6'];
+    if (industryData.length) {
+      drawDonut('analyticsIndustryPie', 'analyticsIndustryLegend',
+        industryData.slice(0, 6).map((d, i) => ({
+          label: d.industry, pct: d.percentage, count: d.count, color: indColors[i] || '#e5e7eb'
+        }))
+      );
+    }
+
+    // Country horizontal bar chart — from geographic distribution
+    if (geoData.length) {
+      const cMax = Math.max(...geoData.map(d => d.count), 1);
+      const countryChart = document.getElementById('analyticsCountryChart');
+      if (countryChart) {
+        countryChart.innerHTML = geoData.slice(0, 8).map(d => `
+          <div style="display:flex;align-items:center;margin-bottom:14px">
+            <div style="font-size:12px;color:#374151;width:100px;flex-shrink:0">${d.country}</div>
+            <div style="flex:1;height:14px;background:#e5e7eb;border-radius:4px;margin:0 10px;position:relative">
+              <div style="height:100%;border-radius:4px;background:#374151;width:${(d.count/cMax)*100}%"></div>
+            </div>
+            <div style="font-size:12px;font-weight:600;color:#374151;width:30px;text-align:right">${d.count}</div>
+          </div>`).join('');
+      }
+    }
+
+  } catch (error) {
+    console.error('Analytics data load error:', error);
   }
 }
 
@@ -917,18 +945,56 @@ async function loadDashboardSummary() {
   try {
     const data = await apiCall('/admin/dashboard/summary');
     
-    // Update KPI cards
-    document.querySelector('.kpi-card:nth-child(1) .kpi-value').textContent = data.total_service_requests;
-    document.querySelector('.kpi-card:nth-child(1) .kpi-change').textContent = `↑ ${data.change_service_requests}% vs last month`;
-    
-    document.querySelector('.kpi-card:nth-child(2) .kpi-value').textContent = data.webinar_registrations;
-    document.querySelector('.kpi-card:nth-child(2) .kpi-change').textContent = `↑ ${data.change_webinar_registrations}% vs last month`;
-    
-    document.querySelector('.kpi-card:nth-child(3) .kpi-value').textContent = `${data.conversion_rate}%`;
-    document.querySelector('.kpi-card:nth-child(3) .kpi-change').textContent = `↑ ${data.change_conversion_rate}pp vs last month`;
-    
-    document.querySelector('.kpi-card:nth-child(4) .kpi-value').textContent = data.avg_satisfaction;
-    document.querySelector('.kpi-card:nth-child(4) .kpi-change').textContent = `↑ ${data.change_satisfaction} vs last month`;
+    // Update Overview KPI cards (by ID)
+    const ovReq = document.getElementById('ovKpiRequests');
+    const ovWeb = document.getElementById('ovKpiWebinars');
+    const ovConv = document.getElementById('ovKpiConversion');
+    const ovSat = document.getElementById('ovKpiSatisfaction');
+    if (ovReq) {
+      ovReq.textContent = data.total_service_requests;
+      ovReq.closest('.kpi-info').querySelector('.change').textContent = `${data.change_service_requests >= 0 ? '↑' : '↓'} ${Math.abs(data.change_service_requests)}% from last month`;
+    }
+    if (ovWeb) {
+      ovWeb.textContent = data.webinar_registrations;
+      ovWeb.closest('.kpi-info').querySelector('.change').textContent = `${data.change_webinar_registrations >= 0 ? '↑' : '↓'} ${Math.abs(data.change_webinar_registrations)}% from last month`;
+    }
+    if (ovConv) {
+      ovConv.textContent = `${data.conversion_rate}%`;
+      ovConv.closest('.kpi-info').querySelector('.change').textContent = `${data.change_conversion_rate >= 0 ? '↑' : '↓'} ${Math.abs(data.change_conversion_rate)}pp from last month`;
+    }
+    if (ovSat) {
+      ovSat.textContent = `${data.avg_satisfaction} / 5`;
+      ovSat.closest('.kpi-info').querySelector('.change').textContent = `${data.change_satisfaction >= 0 ? '↑' : '↓'} ${Math.abs(data.change_satisfaction)} from last month`;
+    }
+
+    // Also update Analytics page KPI cards
+    const anReq = document.getElementById('analyticsRequests');
+    const anWeb = document.getElementById('analyticsWebinars');
+    const anClients = document.getElementById('analyticsNewClients');
+    const anSat = document.getElementById('analyticsSatisfaction');
+    if (anReq) {
+      anReq.textContent = data.total_service_requests;
+      const changeEl = anReq.closest('.admin-kpi-card').querySelector('.admin-kpi-change');
+      if (changeEl) { changeEl.textContent = `${data.change_service_requests >= 0 ? '↑' : '↓'} ${Math.abs(data.change_service_requests)}% from last month`; changeEl.className = `admin-kpi-change ${data.change_service_requests >= 0 ? 'up' : 'down'}`; }
+    }
+    if (anWeb) {
+      anWeb.textContent = data.webinar_registrations;
+      const changeEl = anWeb.closest('.admin-kpi-card').querySelector('.admin-kpi-change');
+      if (changeEl) { changeEl.textContent = `${data.change_webinar_registrations >= 0 ? '↑' : '↓'} ${Math.abs(data.change_webinar_registrations)}% from last month`; changeEl.className = `admin-kpi-change ${data.change_webinar_registrations >= 0 ? 'up' : 'down'}`; }
+    }
+    if (anClients) {
+      // Derive new clients from confirmed contracts (approximate)
+      const confirmedData = await apiCall('/admin/dashboard/conversion-funnel');
+      const confirmed = confirmedData.stages.find(s => s.label === 'Contracted');
+      anClients.textContent = confirmed ? confirmed.count : data.total_service_requests;
+      const changeEl = anClients.closest('.admin-kpi-card').querySelector('.admin-kpi-change');
+      if (changeEl) { changeEl.textContent = `${data.change_conversion_rate >= 0 ? '↑' : '↓'} ${Math.abs(data.change_conversion_rate)}% from last month`; changeEl.className = `admin-kpi-change ${data.change_conversion_rate >= 0 ? 'up' : 'down'}`; }
+    }
+    if (anSat) {
+      anSat.innerHTML = `${data.avg_satisfaction} <span style="font-size:16px;font-weight:400;color:#6b7280">/ 5</span>`;
+      const changeEl = anSat.closest('.admin-kpi-card').querySelector('.admin-kpi-change');
+      if (changeEl) { changeEl.textContent = `${data.change_satisfaction >= 0 ? '↑' : '↓'} ${Math.abs(data.change_satisfaction)} from last month`; changeEl.className = `admin-kpi-change ${data.change_satisfaction >= 0 ? 'up' : 'down'}`; }
+    }
     
   } catch (error) {
     console.error('Error loading dashboard summary:', error);
