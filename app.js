@@ -90,6 +90,7 @@ function showAdminPage(pageId) {
     renderAdminDashboard();
   } else if (pageId === 'admin-analytics') {
     renderAnalyticsCharts();
+    loadActivityLog();
   } else if (pageId === 'admin-satisfaction') {
     loadSatisfactionData();
   }
@@ -116,52 +117,252 @@ function adminLogout() {
 function showSettingsTab(el) {
   document.querySelectorAll('.settings-tabs a').forEach(a => a.classList.remove('active'));
   el.classList.add('active');
+  const tab = el.getAttribute('data-tab');
+  document.querySelectorAll('.settings-content > div[id^="settingsPanel-"]').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById(`settingsPanel-${tab}`);
+  if (panel) panel.style.display = 'block';
+  if (tab === 'notifications') loadNotifHistory();
+}
+
+function saveGeneralSettings() {
+  const data = {
+    platformName: document.getElementById('gs-platformName')?.value,
+    email: document.getElementById('gs-email')?.value,
+    phone: document.getElementById('gs-phone')?.value,
+    timezone: document.getElementById('gs-timezone')?.value,
+  };
+  localStorage.setItem('cn-generalSettings', JSON.stringify(data));
+  showToast('General settings saved.');
+}
+
+function saveDateSettings() {
+  const data = {
+    dateFormat: document.getElementById('gs-dateFormat')?.value,
+    timeFormat: document.getElementById('gs-timeFormat')?.value,
+    weekStart: document.getElementById('gs-weekStart')?.value,
+  };
+  localStorage.setItem('cn-dateSettings', JSON.stringify(data));
+  showToast('Date & time settings saved.');
+}
+
+function saveItemsPerPage() {
+  const val = document.getElementById('gs-itemsPerPage')?.value;
+  localStorage.setItem('cn-itemsPerPage', val);
+  showToast(`Items per page set to ${val}.`);
+}
+
+function saveNotifSettings() {
+  const keys = ['newRequest','newWebinar','newFeedback','lowRating','statusChange','capacityWarn'];
+  const prefs = {};
+  keys.forEach(k => {
+    const el = document.getElementById(`notif-${k}`);
+    if (el) prefs[k] = el.checked;
+  });
+  localStorage.setItem('cn-notifPrefs', JSON.stringify(prefs));
+}
+
+function loadSavedSettings() {
+  // General
+  const gen = JSON.parse(localStorage.getItem('cn-generalSettings') || '{}');
+  if (gen.platformName && document.getElementById('gs-platformName')) document.getElementById('gs-platformName').value = gen.platformName;
+  if (gen.email && document.getElementById('gs-email')) document.getElementById('gs-email').value = gen.email;
+  if (gen.phone && document.getElementById('gs-phone')) document.getElementById('gs-phone').value = gen.phone;
+
+  // Date
+  const dt = JSON.parse(localStorage.getItem('cn-dateSettings') || '{}');
+  if (dt.dateFormat) { const el = document.getElementById('gs-dateFormat'); if (el) el.value = dt.dateFormat; }
+  if (dt.timeFormat) { const el = document.getElementById('gs-timeFormat'); if (el) el.value = dt.timeFormat; }
+  if (dt.weekStart) { const el = document.getElementById('gs-weekStart'); if (el) el.value = dt.weekStart; }
+
+  // Items per page
+  const ipp = localStorage.getItem('cn-itemsPerPage');
+  if (ipp) { const el = document.getElementById('gs-itemsPerPage'); if (el) el.value = ipp; }
+
+  // Notification prefs
+  const prefs = JSON.parse(localStorage.getItem('cn-notifPrefs') || '{}');
+  Object.keys(prefs).forEach(k => {
+    const el = document.getElementById(`notif-${k}`);
+    if (el) el.checked = prefs[k];
+  });
+}
+
+function loadNotifHistory() {
+  const container = document.getElementById('notifHistoryList');
+  if (!container) return;
+  const token = localStorage.getItem('authToken');
+  if (!token) { container.innerHTML = '<p style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">Log in to view notification history.</p>'; return; }
+
+  Promise.all([
+    fetch(`${API_BASE_URL}/admin/service-requests?limit=5`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.ok ? r.json() : []),
+    fetch(`${API_BASE_URL}/admin/webinar-registrations?limit=5`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.ok ? r.json() : []),
+    fetch(`${API_BASE_URL}/admin/satisfaction-feedback?limit=5`, { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.ok ? r.json() : [])
+  ]).then(([requests, registrations, feedback]) => {
+    const prefs = JSON.parse(localStorage.getItem('cn-notifPrefs') || '{}');
+    const events = [];
+
+    if (prefs.newRequest !== false) {
+      (Array.isArray(requests) ? requests : []).forEach(r => {
+        events.push({ type: 'request', label: `New service request from ${r.full_name}`, sub: r.organization_name || '', time: r.created_at, urgent: false });
+      });
+    }
+    if (prefs.newWebinar !== false) {
+      (Array.isArray(registrations) ? registrations : []).forEach(r => {
+        events.push({ type: 'webinar', label: `${r.full_name} registered for a webinar`, sub: r.webinar_title || '', time: r.registered_at, urgent: false });
+      });
+    }
+    if (prefs.newFeedback !== false || prefs.lowRating !== false) {
+      (Array.isArray(feedback) ? feedback : []).forEach(f => {
+        const low = f.rating <= 2;
+        if (low && prefs.lowRating === false) return;
+        if (!low && prefs.newFeedback === false) return;
+        events.push({ type: 'feedback', label: `${low ? 'Low rating alert' : 'Feedback received'}: ${f.respondent_name || 'Anonymous'} rated ${f.rating}/5`, sub: '', time: f.submitted_at, urgent: low });
+      });
+    }
+
+    events.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+    if (!events.length) {
+      container.innerHTML = '<p style="font-size:13px;color:#374151;text-align:center;padding:20px 0">No recent notifications.</p>';
+      return;
+    }
+
+    container.innerHTML = events.map(e => {
+      const d = new Date(e.time).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      const dot = e.urgent ? '#ef4444' : e.type === 'webinar' ? '#818cf8' : e.type === 'feedback' ? '#f59e0b' : '#00D9FF';
+      return `<div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #e5e7eb">
+        <div style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0;margin-top:5px"></div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:#111827">${e.label}</div>
+          ${e.sub ? `<div style="font-size:12px;color:#374151;margin-top:2px">${e.sub}</div>` : ''}
+          <div style="font-size:11px;color:#6b7280;margin-top:4px">${d}</div>
+        </div>
+        ${e.urgent ? `<span style="font-size:11px;background:rgba(239,68,68,0.12);color:#dc2626;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0">Urgent</span>` : ''}
+      </div>`;
+    }).join('');
+  }).catch(() => {
+    container.innerHTML = '<p style="font-size:13px;color:#374151;text-align:center;padding:20px 0">Could not load notification history.</p>';
+  });
 }
 
 function exportCSV() {
-  showToast('Exporting CSV... Download will start shortly.');
+  const dataType = document.getElementById('exportDataType')?.value;
+  if (!dataType) {
+    showToast('Please select a data type to export', 'error');
+    return;
+  }
+
+  const startDate = document.getElementById('exportStartDate')?.value;
+  const endDate = document.getElementById('exportEndDate')?.value;
+
+  const typesToExport = dataType === 'all'
+    ? ['service_requests', 'webinar_registrations']
+    : [dataType];
+
+  let exported = 0;
+
+  typesToExport.forEach(type => {
+    if (type === 'service_requests') {
+      let data = [...allServiceRequests];
+      if (startDate) data = data.filter(r => new Date(r.created_at) >= new Date(startDate));
+      if (endDate) data = data.filter(r => new Date(r.created_at) <= new Date(endDate + 'T23:59:59'));
+      if (data.length === 0) { showToast('No service requests match the selected filters', 'error'); return; }
+      const headers = ['ID','Full Name','Email','Phone','Organization','Country','Industry','Services','Status','Created Date','Notes'];
+      const rows = data.map(req => [
+        req.id, req.full_name, req.email, req.phone_number || '', req.organization_name,
+        req.country, req.industry_sector, req.services.join('; '),
+        req.status.replace(/_/g, ' '), new Date(req.created_at).toLocaleDateString('en-GB'),
+        (req.additional_notes || '').replace(/"/g, '""')
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+      downloadCSV(csv, `service_requests_${new Date().toISOString().split('T')[0]}.csv`);
+      exported++;
+    }
+    if (type === 'webinar_registrations') {
+      let data = [...allWebinarRegistrations];
+      if (startDate) data = data.filter(r => new Date(r.registered_at) >= new Date(startDate));
+      if (endDate) data = data.filter(r => new Date(r.registered_at) <= new Date(endDate + 'T23:59:59'));
+      if (data.length === 0) { showToast('No webinar registrations match the selected filters', 'error'); return; }
+      const headers = ['ID','Full Name','Email','Phone','Organization','Country','Industry','Webinar Title','Registration Date'];
+      const rows = data.map(reg => [
+        reg.id, reg.full_name, reg.email, reg.phone_number || '', reg.organization_name || '',
+        reg.country || '', reg.industry_sector || '', reg.webinar_title,
+        new Date(reg.registered_at).toLocaleDateString('en-GB')
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
+      downloadCSV(csv, `webinar_registrations_${new Date().toISOString().split('T')[0]}.csv`);
+      exported++;
+    }
+  });
+
+  if (exported > 0) showToast(`Exported ${exported} file${exported > 1 ? 's' : ''} successfully`);
 }
 
 // ============================================
 // ADMIN DASHBOARD CHART RENDERERS
 // ============================================
 
-function renderAdminDashboard() {
-  // Bar chart
-  const months = ['Jan','Feb','Mar','Apr','May','Jun'];
-  const vals = [95, 105, 80, 115, 210, 150];
-  const maxV = Math.max(...vals);
-  const barChart = document.getElementById('barChart');
-  if (barChart) {
-    barChart.innerHTML = vals.map((v,i) => `
-      <div class="admin-bar-group">
-        <div class="admin-bar" style="height:${(v/maxV)*170}px;background:#9ca3af" title="${months[i]}: ${v}"></div>
-        <div class="admin-bar-label">${months[i]}</div>
-      </div>`).join('');
-  }
+async function renderAdminDashboard() {
+  const barColors = ['#0088FF','#0ea5e9','#06b6d4','#0088FF','#6366f1','#0ea5e9'];
+  const statusColorMap = { 'Submitted':'#0088FF', 'Reviewed':'#0ea5e9', 'In Progress':'#d97706', 'Completed':'#059669' };
 
-  // Pie chart - Requests by Status
-  const statuses = [
-    {label:'Pending',pct:40,color:'#6b7280'},
-    {label:'Reviewed',pct:25,color:'#9ca3af'},
-    {label:'In Progress',pct:20,color:'#d1d5db'},
-    {label:'Completed',pct:15,color:'#e5e7eb'},
-  ];
-  let cumAngle = 0;
-  const paths = statuses.map(d => {
-    const angle = (d.pct / 100) * 360;
-    const start = polarToXY(50, 50, 45, cumAngle);
-    cumAngle += angle;
-    const end = polarToXY(50, 50, 45, cumAngle);
-    const large = angle > 180 ? 1 : 0;
-    return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${d.color}" stroke="#fff" stroke-width="1.5"/>`;
-  });
-  const pieChart = document.getElementById('pieChart');
-  if (pieChart) pieChart.innerHTML = paths.join('');
-  const pieLegend = document.getElementById('pieLegend');
-  if (pieLegend) pieLegend.innerHTML = statuses.map(d =>
-    `<div class="admin-legend-item"><div class="admin-legend-dot" style="background:${d.color}"></div><span>${d.label} (${d.pct}%)</span></div>`
-  ).join('');
+  // Fetch real data for both charts in parallel
+  try {
+    const [monthlyData, funnelData] = await Promise.all([
+      apiCall('/admin/dashboard/monthly-service-requests'),
+      apiCall('/admin/dashboard/conversion-funnel'),
+    ]);
+
+    // Bar chart — real monthly service requests
+    const barChart = document.getElementById('barChart');
+    if (barChart && monthlyData.length) {
+      const maxV = Math.max(...monthlyData.map(d => d.count), 1);
+      barChart.innerHTML = monthlyData.map((d, i) => `
+        <div class="admin-bar-group">
+          <div class="admin-bar" style="height:${(d.count/maxV)*170}px;background:${barColors[i % barColors.length]}" title="${d.month}: ${d.count}"></div>
+          <div class="admin-bar-label">${d.month}</div>
+        </div>`).join('');
+    }
+
+    // Pie chart — real status distribution from funnel
+    const pieChart = document.getElementById('pieChart');
+    const pieLegend = document.getElementById('pieLegend');
+    if (pieChart && funnelData.stages && funnelData.stages.length) {
+      // Calculate exclusive counts for pie chart (each request in only one slice)
+      const total = funnelData.total_requests || 1;
+      const stages = funnelData.stages;
+      const completedCount = stages.find(s => s.label === 'Completed')?.count || 0;
+      const inProgressCount = (stages.find(s => s.label === 'In Progress')?.count || 0) - completedCount;
+      const reviewedCount = (stages.find(s => s.label === 'Reviewed')?.count || 0) - (stages.find(s => s.label === 'In Progress')?.count || 0);
+      const submittedCount = total - (stages.find(s => s.label === 'Reviewed')?.count || 0);
+
+      const slices = [
+        { label: 'Submitted', count: submittedCount, pct: Math.round((submittedCount / total) * 100) },
+        { label: 'Reviewed', count: reviewedCount, pct: Math.round((reviewedCount / total) * 100) },
+        { label: 'In Progress', count: inProgressCount, pct: Math.round((inProgressCount / total) * 100) },
+        { label: 'Completed', count: completedCount, pct: Math.round((completedCount / total) * 100) },
+      ].filter(s => s.count > 0);
+
+      let cumAngle = 0;
+      const paths = slices.map(d => {
+        const angle = (d.pct / 100) * 360;
+        if (angle === 0) return '';
+        const start = polarToXY(50, 50, 45, cumAngle);
+        cumAngle += angle;
+        const end = polarToXY(50, 50, 45, cumAngle);
+        const large = angle > 180 ? 1 : 0;
+        return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${statusColorMap[d.label] || '#6b7280'}" stroke="#fff" stroke-width="1.5"/>`;
+      });
+      pieChart.innerHTML = paths.join('');
+
+      if (pieLegend) {
+        pieLegend.innerHTML = slices.map(d =>
+          `<div class="admin-legend-item"><div class="admin-legend-dot" style="background:${statusColorMap[d.label] || '#6b7280'}"></div><span>${d.label} (${d.pct}%)</span></div>`
+        ).join('');
+      }
+    }
+  } catch (error) {
+    console.error('Error rendering admin dashboard charts:', error);
+  }
 }
 
 async function renderAnalyticsCharts() {
@@ -185,7 +386,7 @@ async function renderAnalyticsCharts() {
       s += `<text x="${pad-8}" y="${yv+4}" text-anchor="end" fill="#9ca3af" font-size="10">${val}</text>`;
     }
     const pts = data.map((v,i) => `${xFn(i)},${yFn(v)}`).join(' ');
-    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(156,163,175,0.08)"/>`;
+    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="${color}14"/>`;
     s += `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
     s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="3.5" fill="${color}" stroke="#fff" stroke-width="1.5"/>`).join('');
     s += labels.map((l,i) => `<text x="${xFn(i)}" y="${h-8}" text-anchor="middle" fill="#9ca3af" font-size="10">${l}</text>`).join('');
@@ -230,7 +431,7 @@ async function renderAnalyticsCharts() {
       drawLineChart('analyticsLineChart1',
         monthlyData.map(d => d.count),
         monthlyData.map(d => d.month),
-        '#374151');
+        '#0088FF');
     }
 
     // Webinar Registrations line chart — fetch registrations and group by month
@@ -246,13 +447,13 @@ async function renderAnalyticsCharts() {
       // Use same months as service requests for alignment
       const webLabels = monthlyData.map(d => d.month);
       const webValues = webLabels.map(m => monthCounts[m] || 0);
-      drawLineChart('analyticsLineChart2', webValues, webLabels, '#374151');
+      drawLineChart('analyticsLineChart2', webValues, webLabels, '#8b5cf6');
     } catch(e) {
       console.error('Webinar line chart error:', e);
     }
 
     // Status donut — from conversion funnel
-    const statusColors = ['#374151','#6b7280','#9ca3af','#d1d5db','#e5e7eb'];
+    const statusColors = ['#0088FF','#0ea5e9','#d97706','#059669'];
     if (funnelData.stages && funnelData.stages.length) {
       const total = funnelData.stages[0].count || 1;
       drawDonut('analyticsStatusPie', 'analyticsStatusLegend',
@@ -263,7 +464,7 @@ async function renderAnalyticsCharts() {
     }
 
     // Industry donut — from industry distribution
-    const indColors = ['#374151','#6b7280','#9ca3af','#d1d5db','#e5e7eb','#f3f4f6'];
+    const indColors = ['#0088FF','#8b5cf6','#d97706','#059669','#ef4444','#ec4899'];
     if (industryData.length) {
       drawDonut('analyticsIndustryPie', 'analyticsIndustryLegend',
         industryData.slice(0, 6).map((d, i) => ({
@@ -281,7 +482,7 @@ async function renderAnalyticsCharts() {
           <div style="display:flex;align-items:center;margin-bottom:14px">
             <div style="font-size:12px;color:#374151;width:100px;flex-shrink:0">${d.country}</div>
             <div style="flex:1;height:14px;background:#e5e7eb;border-radius:4px;margin:0 10px;position:relative">
-              <div style="height:100%;border-radius:4px;background:#374151;width:${(d.count/cMax)*100}%"></div>
+              <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,#0088FF,#0ea5e9);width:${(d.count/cMax)*100}%"></div>
             </div>
             <div style="font-size:12px;font-weight:600;color:#374151;width:30px;text-align:right">${d.count}</div>
           </div>`).join('');
@@ -311,20 +512,20 @@ function renderSatisfactionCharts() {
       s += `<text x="${pad-8}" y="${yv+4}" text-anchor="end" fill="#9ca3af" font-size="10">${n}</text>`;
     }
     const pts = data.map((v,i) => `${xFn(i)},${yFn(v)}`).join(' ');
-    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(156,163,175,0.08)"/>`;
-    s += `<polyline points="${pts}" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-    s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="4" fill="#374151" stroke="#fff" stroke-width="2"/>`).join('');
+    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(0,136,255,0.08)"/>`;
+    s += `<polyline points="${pts}" fill="none" stroke="#0088FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="4" fill="#0088FF" stroke="#fff" stroke-width="2"/>`).join('');
     s += labels.map((l,i) => `<text x="${xFn(i)}" y="${h-8}" text-anchor="middle" fill="#9ca3af" font-size="10">${l}</text>`).join('');
     svg.innerHTML = s;
   }
 
   // Satisfaction Score Distribution donut
   const distData = [
-    {label:'5 Stars',pct:68,color:'#374151'},
-    {label:'4 Stars',pct:22,color:'#6b7280'},
-    {label:'3 Stars',pct:7,color:'#9ca3af'},
-    {label:'2 Stars',pct:2,color:'#d1d5db'},
-    {label:'1 Star',pct:1,color:'#e5e7eb'},
+    {label:'5 Stars',pct:68,color:'#059669'},
+    {label:'4 Stars',pct:22,color:'#0ea5e9'},
+    {label:'3 Stars',pct:7,color:'#d97706'},
+    {label:'2 Stars',pct:2,color:'#ef4444'},
+    {label:'1 Star',pct:1,color:'#dc2626'},
   ];
   const pieEl = document.getElementById('satDistPie');
   const legendEl = document.getElementById('satDistLegend');
@@ -544,11 +745,11 @@ function renderSatTrendFromData(trend) {
   }
   if (data.length > 1) {
     const pts = data.map((v,i) => `${xFn(i)},${yFn(v)}`).join(' ');
-    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(156,163,175,0.08)"/>`;
-    s += `<polyline points="${pts}" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-    s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="4" fill="#374151" stroke="#fff" stroke-width="2"/>`).join('');
+    s += `<polygon points="${xFn(0)},${h-padB} ${pts} ${xFn(data.length-1)},${h-padB}" fill="rgba(0,136,255,0.08)"/>`;
+    s += `<polyline points="${pts}" fill="none" stroke="#0088FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    s += data.map((v,i) => `<circle cx="${xFn(i)}" cy="${yFn(v)}" r="4" fill="#0088FF" stroke="#fff" stroke-width="2"/>`).join('');
   } else if (data.length === 1) {
-    s += `<circle cx="${xFn(0)}" cy="${yFn(data[0])}" r="5" fill="#374151" stroke="#fff" stroke-width="2"/>`;
+    s += `<circle cx="${xFn(0)}" cy="${yFn(data[0])}" r="5" fill="#0088FF" stroke="#fff" stroke-width="2"/>`;
   }
   s += labels.map((l,i) => `<text x="${xFn(i)}" y="${h-8}" text-anchor="middle" fill="#9ca3af" font-size="10">${l}</text>`).join('');
   svg.innerHTML = s;
@@ -559,7 +760,7 @@ function renderSatDistFromData(distribution) {
   const legendEl = document.getElementById('satDistLegend');
   if (!pieEl || !distribution.length) return;
 
-  const colors = ['#374151','#6b7280','#9ca3af','#d1d5db','#e5e7eb'];
+  const colors = ['#059669','#0ea5e9','#d97706','#ef4444','#dc2626'];
   const starLabels = ['5 Stars','4 Stars','3 Stars','2 Stars','1 Star'];
 
   let cumAngle = 0;
@@ -589,17 +790,32 @@ function renderFeedbackTable(feedback) {
   const tbody = document.querySelector('#admin-satisfaction .admin-data-table tbody');
   if (!tbody || !feedback.length) return;
 
+  // Update table headers to match richer data
+  const thead = document.querySelector('#admin-satisfaction .admin-data-table thead tr');
+  if (thead) {
+    thead.innerHTML = `
+      <th>ID</th><th>Name</th><th>Type</th><th>Form Rating</th><th>First Impression</th>
+      <th>How They Found Us</th><th>Why CyberNova</th><th>Comments</th><th>NPS</th><th>Date</th>`;
+  }
+
   tbody.innerHTML = feedback.map(f => {
-    const stars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+    const formStars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+    const expStars = f.experience_rating ? '★'.repeat(f.experience_rating) + '☆'.repeat(5 - f.experience_rating) : '—';
     const date = new Date(f.submitted_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const typeLabel = f.feedback_type === 'webinar'
+      ? '<span style="background:rgba(99,102,241,0.15);color:#818cf8;padding:2px 8px;border-radius:10px;font-size:11px">Webinar</span>'
+      : '<span style="background:rgba(0,136,255,0.15);color:#60a5fa;padding:2px 8px;border-radius:10px;font-size:11px">Service</span>';
     return `<tr>
-      <td>FB-${String(f.id).padStart(3,'0')}</td>
-      <td>${f.respondent_name || 'Anonymous'}</td>
-      <td>${f.feedback_type === 'webinar' ? 'Webinar' : 'Service'}</td>
-      <td style="color:#f59e0b">${stars}</td>
-      <td>${f.comments || '—'}</td>
-      <td>${date}</td>
-      <td><button style="background:none;border:none;cursor:pointer;color:#6b7280"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td>
+      <td style="color:var(--muted);font-size:12px">FB-${String(f.id).padStart(3,'0')}</td>
+      <td>${f.respondent_name || '<span style="color:var(--muted)">Anonymous</span>'}</td>
+      <td>${typeLabel}</td>
+      <td style="color:#f59e0b;letter-spacing:1px">${formStars}</td>
+      <td style="color:#f59e0b;letter-spacing:1px">${expStars}</td>
+      <td style="font-size:13px">${f.liked_most || '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:13px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.improvements || ''}">${f.improvements || '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:13px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${f.comments || ''}">${f.comments || '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:13px">${f.recommendation_score ? `<strong style="color:var(--accent)">${f.recommendation_score}/10</strong>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="color:var(--muted);font-size:12px">${date}</td>
     </tr>`;
   }).join('');
 
@@ -659,12 +875,12 @@ async function submitForm() {
   
   // Validation
   if (!name || !email || !org || !country || !industry) {
-    showToast('⚠️ Please fill in all required fields', 'error');
+    showToast('Please fill in all required fields.', 'error');
     return;
   }
   
   if (services.length === 0) {
-    showToast('⚠️ Please select at least one service', 'error');
+    showToast('Please select at least one service.', 'error');
     return;
   }
   
@@ -673,7 +889,7 @@ async function submitForm() {
   submitBtn.textContent = 'Submitting...';
   
   try {
-    await apiCall('/service-requests', {
+    const result = await apiCall('/service-requests', {
       method: 'POST',
       body: JSON.stringify({
         full_name: name,
@@ -686,10 +902,34 @@ async function submitForm() {
         additional_notes: notes || null
       })
     });
+
+    console.log('Service request result:', result);
+    console.log('Feedback URL:', result?.feedback_url);
+
+    // Show success message
+    const successEl = document.getElementById('successMsg');
+    successEl.innerHTML = 'Your request has been received. A CyberNova analyst will contact you within 24 hours.';
+    successEl.style.display = 'block';
+    showToast('Assessment request submitted successfully.');
     
-    document.getElementById('successMsg').style.display = 'block';
-    showToast('✅ Assessment request submitted!');
-    
+    setTimeout(() => { successEl.style.display = 'none'; }, 8000);
+
+    // Open satisfaction modal if feedback token is available
+    if (result && result.feedback_url) {
+      const token = result.feedback_url.split('feedback=')[1];
+      const serviceNames = services.join(', ');
+      
+      setTimeout(() => {
+        openSatisfactionModal({
+          type: 'service',
+          token: token,
+          serviceName: serviceNames,
+          fullName: name,
+          email: email
+        });
+      }, 1500);
+    }
+
     // Reset form
     document.getElementById('fname').value = '';
     document.getElementById('femail').value = '';
@@ -699,11 +939,7 @@ async function submitForm() {
     document.getElementById('findustry').value = '';
     document.getElementById('fnotes').value = '';
     serviceCheckboxes.forEach(cb => cb.checked = false);
-    
-    setTimeout(() => {
-      document.getElementById('successMsg').style.display = 'none';
-    }, 5000);
-    
+
   } catch (error) {
     showToast(`Error: ${error.message}`, 'error');
   } finally {
@@ -745,7 +981,7 @@ function renderWebinars() {
           <span>👥 ${webinar.registration_count} registered</span>
         </div>
         <button class="event-btn" onclick="registerEvent(this, ${webinar.id}, '${webinar.title.replace(/'/g, "\\'")}', ${webinar.price || 'null'})">
-          Register ${webinar.price ? `— R${webinar.price}` : 'Free'} →
+          Register ${webinar.price ? `— P${webinar.price}` : 'Free'} →
         </button>
       </div>
     </div>
@@ -776,7 +1012,7 @@ function openWebinarModal(webinarId, webinarTitle, webinarDate, webinarTime, pri
   detailsEl.textContent = `${webinarDate} • ${webinarTime}`;
   
   // Update button text with price
-  const btnText = price ? `Register — R${price}` : 'Register Free';
+  const btnText = price ? `Register — P${price}` : 'Register Free';
   btnTextEl.textContent = btnText;
   
   // Reset form
@@ -826,44 +1062,78 @@ async function submitWebinarRegistration(event) {
   btnText.textContent = 'Registering...';
   
   try {
-    await apiCall('/webinar-registrations', {
+    const result = await apiCall('/webinar-registrations', {
       method: 'POST',
       body: JSON.stringify(formData)
     });
     
+    console.log('Webinar registration result:', result);
+    
     // Show success
     successMsg.style.display = 'block';
-    showToast(`✅ Registered for: ${currentWebinar.title}`);
+    showToast(`Registered for: ${currentWebinar.title}`);
     
+    // Capture all needed data BEFORE closing modal (closeWebinarModal nulls currentWebinar)
+    const webinarTitle = currentWebinar.title;
+    const satisfactionData = (result && result.feedback_url) ? {
+      type: 'webinar',
+      token: result.feedback_url.split('feedback=')[1],
+      webinarTitle: webinarTitle,
+      fullName: formData.full_name,
+      email: formData.email
+    } : null;
+
     // Reload webinars to update counts
     await loadWebinars();
-    
-    // Close modal after 2 seconds
+
+    // Close modal after 2 seconds, then immediately open satisfaction modal
     setTimeout(() => {
       closeWebinarModal();
+      if (satisfactionData) {
+        openSatisfactionModal(satisfactionData);
+      }
     }, 2000);
     
   } catch (error) {
     // Show error
     errorMsg.textContent = error.message.includes('already registered') 
-      ? '⚠️ You have already registered for this webinar' 
-      : `⚠️ ${error.message}`;
+      ? 'You have already registered for this webinar.' 
+      : error.message;
     errorMsg.style.display = 'block';
     showToast('Registration failed', 'error');
     
     // Re-enable button
     submitBtn.disabled = false;
-    const btnTextContent = currentWebinar.price ? `Register — R${currentWebinar.price}` : 'Register Free';
+    const btnTextContent = currentWebinar.price ? `Register — P${currentWebinar.price}` : 'Register Free';
     btnText.textContent = btnTextContent;
   }
 }
 
-// Legacy function for compatibility - now opens modal
-async function registerEvent(btn, webinarId, webinarTitle, price) {
-  // This function is kept for backward compatibility but now opens the modal
-  const webinarData = webinarsData.find(w => w.id === webinarId);
+// Handles both legacy calls (btn, titleString) and dynamic calls (btn, id, title, price)
+async function registerEvent(btn, webinarIdOrTitle, webinarTitle, price) {
+  let webinarData = null;
+
+  if (typeof webinarIdOrTitle === 'number') {
+    // Called from dynamically loaded webinar cards with numeric ID
+    webinarData = webinarsData.find(w => w.id === webinarIdOrTitle);
+  } else if (typeof webinarIdOrTitle === 'string') {
+    // Called from hardcoded HTML buttons with title string — match by partial title
+    webinarData = webinarsData.find(w =>
+      w.title.toLowerCase().includes(webinarIdOrTitle.toLowerCase()) ||
+      webinarIdOrTitle.toLowerCase().includes(w.title.toLowerCase().split(':')[0].trim().toLowerCase())
+    );
+  }
+
   if (webinarData) {
-    openWebinarModal(webinarId, webinarTitle, webinarData.event_date, webinarData.event_time, price);
+    openWebinarModal(webinarData.id, webinarData.title, webinarData.event_date, webinarData.event_time, webinarData.price);
+  } else {
+    // Webinars not yet loaded — fetch them first then retry
+    try {
+      await loadWebinars();
+      await registerEvent(btn, webinarIdOrTitle, webinarTitle, price);
+    } catch (e) {
+      showToast('Could not load event details. Please try again.', 'error');
+    }
   }
 }
 
@@ -917,14 +1187,11 @@ async function doLogin() {
 // ============================================
 
 async function loadDashboard() {
-  // Render the static admin overview charts immediately
-  renderAdminDashboard();
-  
+  loadSavedSettings();
   try {
     await Promise.all([
+      renderAdminDashboard(),
       loadDashboardSummary(),
-      loadMonthlyRequests(),
-      loadIndustryDistribution(),
       loadGeographicDistribution(),
       loadConversionFunnel(),
       loadCustomerSatisfaction(),
@@ -985,7 +1252,7 @@ async function loadDashboardSummary() {
     if (anClients) {
       // Derive new clients from confirmed contracts (approximate)
       const confirmedData = await apiCall('/admin/dashboard/conversion-funnel');
-      const confirmed = confirmedData.stages.find(s => s.label === 'Contracted');
+      const confirmed = confirmedData.stages.find(s => s.label === 'Completed');
       anClients.textContent = confirmed ? confirmed.count : data.total_service_requests;
       const changeEl = anClients.closest('.admin-kpi-card').querySelector('.admin-kpi-change');
       if (changeEl) { changeEl.textContent = `${data.change_conversion_rate >= 0 ? '↑' : '↓'} ${Math.abs(data.change_conversion_rate)}% from last month`; changeEl.className = `admin-kpi-change ${data.change_conversion_rate >= 0 ? 'up' : 'down'}`; }
@@ -1001,57 +1268,8 @@ async function loadDashboardSummary() {
   }
 }
 
-async function loadMonthlyRequests() {
-  try {
-    const data = await apiCall('/admin/dashboard/monthly-service-requests');
-    renderBarChart(data);
-  } catch (error) {
-    console.error('Error loading monthly requests:', error);
-  }
-}
-
-function renderBarChart(data) {
-  const barChart = document.getElementById('barChart');
-  if (!barChart || data.length === 0) return;
-  
-  const maxV = Math.max(...data.map(d => d.count));
-  barChart.innerHTML = data.map(d => `
-    <div class="bar-group">
-      <div class="bar" style="height:${(d.count/maxV)*170}px;background:linear-gradient(180deg,var(--accent),rgba(0,201,167,0.4))" title="${d.month}: ${d.count}"></div>
-      <div class="bar-label">${d.month}</div>
-    </div>
-  `).join('');
-}
-
-async function loadIndustryDistribution() {
-  try {
-    const data = await apiCall('/admin/dashboard/industry-distribution');
-    renderPieChart(data);
-  } catch (error) {
-    console.error('Error loading industry distribution:', error);
-  }
-}
-
-function renderPieChart(industries) {
-  if (industries.length === 0) return;
-  
-  const colors = ['#00C9A7', '#0088FF', '#9B59B6', '#FF6B35', '#F39C12', '#6A8A9A'];
-  let cumAngle = 0;
-  
-  const paths = industries.slice(0, 6).map((d, i) => {
-    const angle = (d.percentage / 100) * 360;
-    const start = polarToXY(50, 50, 45, cumAngle);
-    cumAngle += angle;
-    const end = polarToXY(50, 50, 45, cumAngle);
-    const large = angle > 180 ? 1 : 0;
-    return `<path d="M50,50 L${start.x},${start.y} A45,45 0 ${large},1 ${end.x},${end.y} Z" fill="${colors[i]}" stroke="var(--bg)" stroke-width="1.5"/>`;
-  });
-  
-  document.getElementById('pieChart').innerHTML = paths.join('');
-  document.getElementById('pieLegend').innerHTML = industries.slice(0, 6).map((d, i) =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div><span>${d.industry} ${d.percentage}%</span></div>`
-  ).join('');
-}
+// loadMonthlyRequests and loadIndustryDistribution are now handled by renderAdminDashboard()
+// and renderAnalyticsCharts() respectively, so no separate functions needed.
 
 function polarToXY(cx, cy, r, deg) {
   const rad = (deg - 90) * Math.PI / 180;
@@ -1084,23 +1302,87 @@ function renderGeoChart(data) {
 async function loadConversionFunnel() {
   try {
     const data = await apiCall('/admin/dashboard/conversion-funnel');
-    renderConversionFunnel(data.stages);
+    renderConversionFunnel(data);
   } catch (error) {
     console.error('Error loading conversion funnel:', error);
   }
 }
 
-function renderConversionFunnel(stages) {
+function renderConversionFunnel(data) {
+  const stageColors = {
+    'Submitted': 'stage-submitted',
+    'Reviewed': 'stage-reviewed',
+    'In Progress': 'stage-in-progress',
+    'Completed': 'stage-completed'
+  };
+
+  // Render funnel bars on Overview page
   const convChart = document.getElementById('convChart');
-  if (!convChart) return;
-  
-  convChart.innerHTML = stages.map(d => `
-    <div class="conversion-row">
-      <div class="conv-label">${d.label}</div>
-      <div class="conv-bar-wrap"><div class="conv-bar-fill" style="width:${d.percentage}%"></div></div>
-      <div class="conv-pct">${d.percentage}%</div>
-    </div>
-  `).join('');
+  if (convChart) {
+    convChart.innerHTML = data.stages.map(d => `
+      <div class="conversion-row" title="${d.label}: ${d.count} of ${data.total_requests} (${d.percentage}%)">
+        <div class="conv-label">${d.label}</div>
+        <div class="conv-bar-wrap">
+          <div class="conv-bar-fill ${stageColors[d.label] || ''}" style="width:${d.percentage}%">
+            <span>${d.count}</span>
+          </div>
+        </div>
+        <div class="conv-pct">${d.percentage}%</div>
+      </div>
+    `).join('');
+  }
+
+  // Update Overview KPI card with live conversion rate
+  const ovConv = document.getElementById('ovKpiConversion');
+  if (ovConv) ovConv.textContent = `${data.conversion_rate}%`;
+}
+
+async function loadActivityLog() {
+  try {
+    const activities = await apiCall('/admin/activity-log');
+    renderActivityLog(activities);
+  } catch (error) {
+    console.error('Error loading activity log:', error);
+    const container = document.getElementById('analyticsActivityTable');
+    if (container) container.innerHTML = '<div class="empty-state">Unable to load activity log</div>';
+  }
+}
+
+function renderActivityLog(activities) {
+  const container = document.getElementById('analyticsActivityTable');
+  if (!container) return;
+
+  if (!activities.length) {
+    container.innerHTML = '<div class="empty-state">No activity recorded yet</div>';
+    return;
+  }
+
+  const iconMap = {
+    service_request: '<svg viewBox="0 0 24 24" fill="none" stroke="#0088FF" stroke-width="2" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    status_update: '<svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" style="width:16px;height:16px"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    webinar_registration: '<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" style="width:16px;height:16px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>',
+    feedback: '<svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" style="width:16px;height:16px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+  };
+
+  const rows = activities.map(a => {
+    const icon = iconMap[a.activity_type] || iconMap.service_request;
+    const dt = new Date(a.created_at);
+    const dateStr = dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+      + ', ' + dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+    return `<tr>
+      <td>${icon}</td>
+      <td>${a.title}</td>
+      <td>${a.details || '-'}</td>
+      <td>${dateStr}</td>
+    </tr>`;
+  }).join('');
+
+  container.innerHTML = `
+    <table class="admin-data-table">
+      <thead><tr><th style="width:30px"></th><th>Activity</th><th>Details</th><th>Date &amp; Time</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 
 async function loadCustomerSatisfaction() {
@@ -1137,14 +1419,59 @@ async function loadServiceRequests() {
   try {
     const data = await apiCall('/admin/service-requests');
     renderServiceRequestsTable(data);
+    renderOverviewServiceRequests(data); // Also update Overview page table
   } catch (error) {
     console.error('Error loading service requests:', error);
   }
 }
 
+function renderOverviewServiceRequests(requests) {
+  const container = document.getElementById('overviewServiceTable');
+  if (!container) return;
+  
+  // Show only the 5 most recent requests
+  const recent = requests.slice(0, 5);
+  
+  if (recent.length === 0) {
+    container.innerHTML = '<div class="empty-state">No service requests yet</div>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Client Name</th>
+          <th>Service</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${recent.map(req => `
+          <tr>
+            <td>SR-${String(req.id).padStart(3, '0')}</td>
+            <td>${req.full_name}</td>
+            <td>${req.services[0] || 'N/A'}</td>
+            <td>${new Date(req.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+            <td><span class="status-badge status-${req.status}">${req.status.replace(/_/g, ' ')}</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// Store all requests for filtering
+let allServiceRequests = [];
+
 function renderServiceRequestsTable(requests) {
   const container = document.getElementById('serviceRequestsTable');
   if (!container) return;
+  
+  // Store all requests globally for filtering
+  allServiceRequests = requests;
   
   if (requests.length === 0) {
     container.innerHTML = '<div class="empty-state">No service requests yet</div>';
@@ -1152,7 +1479,7 @@ function renderServiceRequestsTable(requests) {
   }
   
   container.innerHTML = `
-    <table class="data-table">
+    <table class="admin-data-table">
       <thead>
         <tr>
           <th>Name</th>
@@ -1174,16 +1501,107 @@ function renderServiceRequestsTable(requests) {
             <td>${req.industry_sector}</td>
             <td>${req.services.join(', ')}</td>
             <td>${new Date(req.created_at).toLocaleDateString()}</td>
-            <td><span class="status-badge status-${req.status}">${req.status.replace(/_/g, ' ')}</span></td>
+            <td><span class="status-badge ${req.status}">${req.status.replace(/_/g, ' ')}</span></td>
             <td>
               <select class="status-select" onchange="updateRequestStatus(${req.id}, this.value); this.value='';">
                 <option value="">Change Status</option>
-                <option value="new_inquiry">New Inquiry</option>
-                <option value="qualified">Qualified</option>
-                <option value="proposal_sent">Proposal Sent</option>
-                <option value="negotiation">Negotiation</option>
-                <option value="confirmed_contract">Confirmed Contract</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  
+  // Attach filter event listeners
+  attachServiceRequestFilters();
+}
+
+function attachServiceRequestFilters() {
+  const searchInput = document.getElementById('srSearch');
+  const statusFilter = document.getElementById('srStatusFilter');
+  const serviceFilter = document.getElementById('srServiceFilter');
+  
+  if (searchInput) {
+    searchInput.removeEventListener('input', filterServiceRequests);
+    searchInput.addEventListener('input', filterServiceRequests);
+  }
+  if (statusFilter) {
+    statusFilter.removeEventListener('change', filterServiceRequests);
+    statusFilter.addEventListener('change', filterServiceRequests);
+  }
+  if (serviceFilter) {
+    serviceFilter.removeEventListener('change', filterServiceRequests);
+    serviceFilter.addEventListener('change', filterServiceRequests);
+  }
+}
+
+function filterServiceRequests() {
+  const searchTerm = document.getElementById('srSearch')?.value.toLowerCase() || '';
+  const statusValue = document.getElementById('srStatusFilter')?.value || '';
+  const serviceValue = document.getElementById('srServiceFilter')?.value || '';
+  
+  let filtered = allServiceRequests.filter(req => {
+    // Search filter
+    const matchesSearch = !searchTerm || 
+      req.full_name.toLowerCase().includes(searchTerm) ||
+      req.email.toLowerCase().includes(searchTerm) ||
+      req.organization_name.toLowerCase().includes(searchTerm) ||
+      req.services.some(s => s.toLowerCase().includes(searchTerm));
+    
+    // Status filter
+    const matchesStatus = !statusValue || req.status === statusValue;
+    
+    // Service filter
+    const matchesService = !serviceValue || req.services.includes(serviceValue);
+    
+    return matchesSearch && matchesStatus && matchesService;
+  });
+  
+  // Re-render with filtered data
+  const container = document.getElementById('serviceRequestsTable');
+  if (!container) return;
+  
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state">No matching service requests found</div>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Organization</th>
+          <th>Country</th>
+          <th>Industry</th>
+          <th>Services</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(req => `
+          <tr>
+            <td>${req.full_name}</td>
+            <td>${req.organization_name}</td>
+            <td>${req.country}</td>
+            <td>${req.industry_sector}</td>
+            <td>${req.services.join(', ')}</td>
+            <td>${new Date(req.created_at).toLocaleDateString()}</td>
+            <td><span class="status-badge ${req.status}">${req.status.replace(/_/g, ' ')}</span></td>
+            <td>
+              <select class="status-select" onchange="updateRequestStatus(${req.id}, this.value); this.value='';">
+                <option value="">Change Status</option>
+                <option value="submitted">Submitted</option>
+                <option value="reviewed">Reviewed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
               </select>
             </td>
           </tr>
@@ -1218,14 +1636,57 @@ async function loadWebinarRegistrations() {
   try {
     const data = await apiCall('/admin/webinar-registrations');
     renderWebinarRegistrationsTable(data);
+    renderOverviewWebinarRegistrations(data); // Also update Overview page table
   } catch (error) {
     console.error('Error loading webinar registrations:', error);
   }
 }
 
+function renderOverviewWebinarRegistrations(registrations) {
+  const container = document.getElementById('overviewWebinarTable');
+  if (!container) return;
+  
+  // Show only the 5 most recent registrations
+  const recent = registrations.slice(0, 5);
+  
+  if (recent.length === 0) {
+    container.innerHTML = '<div class="empty-state">No webinar registrations yet</div>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Attendee</th>
+          <th>Webinar</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${recent.map(reg => `
+          <tr>
+            <td>WR-${String(reg.id).padStart(3, '0')}</td>
+            <td>${reg.full_name}</td>
+            <td>${reg.webinar_title}</td>
+            <td>${new Date(reg.registered_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// Store all webinar registrations for filtering
+let allWebinarRegistrations = [];
+
 function renderWebinarRegistrationsTable(registrations) {
   const container = document.getElementById('webinarRegistrationsTable');
   if (!container) return;
+  
+  // Store globally for filtering
+  allWebinarRegistrations = registrations;
   
   if (registrations.length === 0) {
     container.innerHTML = '<div class="empty-state">No webinar registrations yet</div>';
@@ -1233,24 +1694,107 @@ function renderWebinarRegistrationsTable(registrations) {
   }
   
   container.innerHTML = `
-    <table class="data-table">
+    <table class="admin-data-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Webinar</th>
+          <th>ID</th>
+          <th>Registrant Name</th>
           <th>Email</th>
-          <th>Country</th>
+          <th>Webinar</th>
+          <th>Type</th>
           <th>Registration Date</th>
         </tr>
       </thead>
       <tbody>
         ${registrations.map(reg => `
           <tr>
+            <td>WR-${String(reg.id).padStart(3, '0')}</td>
             <td>${reg.full_name}</td>
-            <td>${reg.webinar_title}</td>
             <td>${reg.email}</td>
-            <td>${reg.country || 'N/A'}</td>
-            <td>${new Date(reg.registered_at).toLocaleDateString()}</td>
+            <td>${reg.webinar_title}</td>
+            <td>${reg.webinar_type || 'Webinar'}</td>
+            <td>${new Date(reg.registered_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+  
+  // Attach filter event listeners
+  attachWebinarRegistrationFilters();
+}
+
+function attachWebinarRegistrationFilters() {
+  const searchInput = document.getElementById('wrSearch');
+  const typeFilter = document.getElementById('wrTypeFilter');
+  const dateFilter = document.getElementById('wrDateFilter');
+  
+  if (searchInput) {
+    searchInput.removeEventListener('input', filterWebinarRegistrations);
+    searchInput.addEventListener('input', filterWebinarRegistrations);
+  }
+  if (typeFilter) {
+    typeFilter.removeEventListener('change', filterWebinarRegistrations);
+    typeFilter.addEventListener('change', filterWebinarRegistrations);
+  }
+  if (dateFilter) {
+    dateFilter.removeEventListener('change', filterWebinarRegistrations);
+    dateFilter.addEventListener('change', filterWebinarRegistrations);
+  }
+}
+
+function filterWebinarRegistrations() {
+  const searchTerm = document.getElementById('wrSearch')?.value.toLowerCase() || '';
+  const typeValue = document.getElementById('wrTypeFilter')?.value || '';
+  const dateValue = document.getElementById('wrDateFilter')?.value || '';
+  
+  let filtered = allWebinarRegistrations.filter(reg => {
+    // Search filter
+    const matchesSearch = !searchTerm || 
+      reg.full_name.toLowerCase().includes(searchTerm) ||
+      reg.email.toLowerCase().includes(searchTerm) ||
+      reg.webinar_title.toLowerCase().includes(searchTerm);
+    
+    // Type filter
+    const matchesType = !typeValue || (reg.webinar_type || 'Webinar') === typeValue;
+    
+    // Date filter - show registrations from selected date onwards
+    const regDate = new Date(reg.registered_at);
+    const matchesDate = !dateValue || regDate.toISOString().split('T')[0] === dateValue;
+    
+    return matchesSearch && matchesType && matchesDate;
+  });
+  
+  // Re-render with filtered data
+  const container = document.getElementById('webinarRegistrationsTable');
+  if (!container) return;
+  
+  if (filtered.length === 0) {
+    container.innerHTML = '<div class="empty-state">No matching webinar registrations found</div>';
+    return;
+  }
+  
+  container.innerHTML = `
+    <table class="admin-data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Registrant Name</th>
+          <th>Email</th>
+          <th>Webinar</th>
+          <th>Type</th>
+          <th>Registration Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filtered.map(reg => `
+          <tr>
+            <td>WR-${String(reg.id).padStart(3, '0')}</td>
+            <td>${reg.full_name}</td>
+            <td>${reg.email}</td>
+            <td>${reg.webinar_title}</td>
+            <td>${reg.webinar_type || 'Webinar'}</td>
+            <td>${new Date(reg.registered_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -1259,8 +1803,338 @@ function renderWebinarRegistrationsTable(registrations) {
 }
 
 // ============================================
+// CSV EXPORT FUNCTIONS
+// ============================================
+
+function exportServiceRequestsCSV() {
+  if (allServiceRequests.length === 0) {
+    showToast('No service requests to export', 'error');
+    return;
+  }
+  
+  // CSV headers
+  const headers = ['ID', 'Full Name', 'Email', 'Phone', 'Organization', 'Country', 'Industry', 'Services', 'Status', 'Created Date', 'Notes'];
+  
+  // CSV rows
+  const rows = allServiceRequests.map(req => [
+    req.id,
+    req.full_name,
+    req.email,
+    req.phone_number || '',
+    req.organization_name,
+    req.country,
+    req.industry_sector,
+    req.services.join('; '),
+    req.status.replace(/_/g, ' '),
+    new Date(req.created_at).toLocaleDateString('en-GB'),
+    (req.additional_notes || '').replace(/"/g, '""')
+  ]);
+  
+  // Build CSV content
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+  ].join('\n');
+  
+  // Download
+  downloadCSV(csvContent, `service_requests_${new Date().toISOString().split('T')[0]}.csv`);
+  showToast('Service requests exported successfully');
+}
+
+function exportWebinarRegistrationsCSV() {
+  if (allWebinarRegistrations.length === 0) {
+    showToast('No webinar registrations to export', 'error');
+    return;
+  }
+  
+  // CSV headers
+  const headers = ['ID', 'Full Name', 'Email', 'Phone', 'Organization', 'Country', 'Industry', 'Webinar Title', 'Webinar Type', 'Registration Date'];
+  
+  // CSV rows
+  const rows = allWebinarRegistrations.map(reg => [
+    reg.id,
+    reg.full_name,
+    reg.email,
+    reg.phone_number || '',
+    reg.organization_name || '',
+    reg.country || '',
+    reg.industry_sector || '',
+    reg.webinar_title,
+    reg.webinar_type || 'Webinar',
+    new Date(reg.registered_at).toLocaleDateString('en-GB')
+  ]);
+  
+  // Build CSV content
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+  ].join('\n');
+  
+  // Download
+  downloadCSV(csvContent, `webinar_registrations_${new Date().toISOString().split('T')[0]}.csv`);
+  showToast('Webinar registrations exported successfully');
+}
+
+function downloadCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// ============================================
 // INITIALIZE ON PAGE LOAD
 // ============================================
+
+// ============================================
+// PDF DOWNLOAD FOR RESOURCES
+// ============================================
+
+function downloadResourcePDF(title, content) {
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+
+    // Header bar
+    doc.setFillColor(5, 10, 14);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(0, 217, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CyberNova', margin, 26);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.text('AI-Powered Cybersecurity Analytics', pageWidth - margin, 26, { align: 'right' });
+
+    // Title
+    doc.setTextColor(17, 24, 39);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, margin, 58);
+
+    // Divider
+    doc.setDrawColor(0, 136, 255);
+    doc.setLineWidth(0.5);
+    doc.line(margin, 63, pageWidth - margin, 63);
+
+    // Date
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(107, 114, 128);
+    doc.text('Published: ' + new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }), margin, 70);
+    doc.text('CyberNova Analytics Ltd | www.cybernova.com', margin, 76);
+
+    // Body content
+    doc.setTextColor(55, 65, 81);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const lines = doc.splitTextToSize(content, maxWidth);
+    let y = 88;
+    lines.forEach(line => {
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+      // Bold lines starting with - or a number
+      if (/^(\d+\.|-)/.test(line.trim())) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(line, margin, y);
+        doc.setFont('helvetica', 'normal');
+      } else {
+        doc.text(line, margin, y);
+      }
+      y += 7;
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(156, 163, 175);
+      doc.text('CONFIDENTIAL - CyberNova Analytics Ltd', margin, 290);
+      doc.text(`Page ${i} of ${pageCount}`, pageWidth - margin, 290, { align: 'right' });
+    }
+
+    const filename = title.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_') + '.pdf';
+    doc.save(filename);
+    showToast(`Downloaded: ${title}.pdf`);
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    showToast('Failed to generate PDF. Please try again.', 'error');
+  }
+}
+
+// ============================================
+// SATISFACTION MODAL FUNCTIONS
+// ============================================
+
+let currentSatisfactionData = null;
+
+function openSatisfactionModal(data) {
+  currentSatisfactionData = data;
+  const modal = document.getElementById('satisfactionModal');
+  const context = document.getElementById('satisfactionContext');
+
+  if (data.type === 'service') {
+    // First-time client — questions about the enquiry process
+    context.textContent = `Thanks for reaching out about ${data.serviceName}. We'd love your quick feedback on the process.`;
+    document.getElementById('modalRatingLabel').textContent = 'How easy was the enquiry form to fill out? *';
+    document.getElementById('modalExpLabel').textContent = 'Your first impression of CyberNova? *';
+    document.getElementById('modalLikedLabel').innerHTML = 'How did you hear about us? <span style="font-weight:400;opacity:0.6">(optional)</span>';
+    document.getElementById('modalImprovementsLabel').innerHTML = 'What made you choose CyberNova? <span style="font-weight:400;opacity:0.6">(optional)</span>';
+
+    // Swap liked field to a dropdown
+    const likedEl = document.getElementById('modalLikedMost');
+    if (likedEl.tagName === 'TEXTAREA') {
+      likedEl.outerHTML = `<select id="modalLikedMost" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;color:var(--text);background:var(--bg);box-sizing:border-box">
+        <option value="">Select an option...</option>
+        <option value="Google / Search Engine">Google / Search Engine</option>
+        <option value="Social Media">Social Media</option>
+        <option value="Word of mouth / Referral">Word of mouth / Referral</option>
+        <option value="LinkedIn">LinkedIn</option>
+        <option value="Industry event or conference">Industry event or conference</option>
+        <option value="News article or blog">News article or blog</option>
+        <option value="Other">Other</option>
+      </select>`;
+    } else {
+      likedEl.value = '';
+    }
+
+    document.getElementById('modalImprovements').placeholder = 'e.g. Reputation, pricing, specific services...';
+
+  } else if (data.type === 'webinar') {
+    // Webinar registrant
+    context.textContent = `Thanks for registering for: ${data.webinarTitle}. How was the registration experience?`;
+    document.getElementById('modalRatingLabel').textContent = 'How easy was registration? *';
+    document.getElementById('modalExpLabel').textContent = 'Your overall impression of CyberNova? *';
+    document.getElementById('modalLikedLabel').innerHTML = 'What did you like most? <span style="font-weight:400;opacity:0.6">(optional)</span>';
+    document.getElementById('modalImprovementsLabel').innerHTML = 'What can we improve? <span style="font-weight:400;opacity:0.6">(optional)</span>';
+
+    // Swap liked field to textarea if currently a select
+    const likedEl = document.getElementById('modalLikedMost');
+    if (likedEl.tagName === 'SELECT') {
+      likedEl.outerHTML = `<textarea id="modalLikedMost" rows="2" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:var(--text);background:var(--bg);box-sizing:border-box" placeholder="Tell us what you enjoyed..."></textarea>`;
+    } else {
+      likedEl.value = '';
+    }
+
+    document.getElementById('modalImprovements').placeholder = 'Suggestions for improvement...';
+  }
+
+  // Reset form values
+  document.getElementById('modalRating').value = '';
+  document.getElementById('modalExpRatingVal').value = '';
+  document.getElementById('modalNPS').value = '';
+  document.getElementById('modalImprovements').value = '';
+  document.getElementById('modalComments').value = '';
+  document.getElementById('modalFeedbackError').style.display = 'none';
+
+  // Reset star ratings visually
+  document.querySelectorAll('#modalStarRating span').forEach(s => s.style.color = '#374151');
+  document.querySelectorAll('#modalExpStars span').forEach(s => s.style.color = '#374151');
+  document.querySelectorAll('#modalNpsScore .nps-btn').forEach(btn => {
+    btn.style.background = '';
+    btn.style.color = '';
+  });
+
+  modal.style.display = 'flex';
+}
+
+function closeSatisfactionModal() {
+  document.getElementById('satisfactionModal').style.display = 'none';
+  currentSatisfactionData = null;
+}
+
+function setModalStarRating(rating) {
+  document.getElementById('modalRating').value = rating;
+  const stars = document.querySelectorAll('#modalStarRating span');
+  stars.forEach((star, idx) => {
+    star.style.color = idx < rating ? '#fbbf24' : '#d1d5db';
+  });
+}
+
+function setModalExpRating(rating) {
+  document.getElementById('modalExpRatingVal').value = rating;
+  const stars = document.querySelectorAll('#modalExpStars span');
+  stars.forEach((star, idx) => {
+    star.style.color = idx < rating ? '#fbbf24' : '#d1d5db';
+  });
+}
+
+function setModalNPS(score) {
+  document.getElementById('modalNPS').value = score;
+  const btns = document.querySelectorAll('#modalNpsScore .nps-btn');
+  btns.forEach((btn, idx) => {
+    if (idx + 1 === score) {
+      btn.style.background = '#00D9FF';
+      btn.style.color = '#050A0E';
+    } else {
+      btn.style.background = '#e5e7eb';
+      btn.style.color = '#374151';
+    }
+  });
+}
+
+async function submitModalFeedback() {
+  const rating = parseInt(document.getElementById('modalRating').value);
+  const expRating = parseInt(document.getElementById('modalExpRatingVal').value);
+  const errEl = document.getElementById('modalFeedbackError');
+  errEl.style.display = 'none';
+
+  if (!rating || rating < 1 || rating > 5) {
+    errEl.textContent = 'Please select a satisfaction rating (1-5 stars).';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!expRating || expRating < 1 || expRating > 5) {
+    errEl.textContent = 'Please select an overall experience rating (1-5 stars).';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const nps = parseInt(document.getElementById('modalNPS').value) || null;
+
+  const payload = {
+    token: currentSatisfactionData.token,
+    rating: rating,
+    experience_rating: expRating,
+    recommendation_score: nps,
+    liked_most: document.getElementById('modalLikedMost').value || null,
+    improvements: document.getElementById('modalImprovements').value || null,
+    comments: document.getElementById('modalComments').value || null,
+    respondent_name: currentSatisfactionData.fullName || null,
+    respondent_email: currentSatisfactionData.email || null,
+  };
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/feedback/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'Submission failed');
+    }
+
+    closeSatisfactionModal();
+    showToast('Thank you for your feedback.');
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   // Load webinars on events page if it's the active page

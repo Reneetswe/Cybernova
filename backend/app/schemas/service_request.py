@@ -26,7 +26,8 @@ class ServiceRequestResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     contract_confirmed_at: Optional[datetime]
-    
+    feedback_url: Optional[str] = None
+
     class Config:
         from_attributes = True
 
@@ -41,4 +42,4 @@ class ServiceRequestUpdate(BaseModel):
     status: Optional[str] = None
 
 class ServiceRequestStatusUpdate(BaseModel):
-    status: str  # new_inquiry, qualified, proposal_sent, negotiation, confirmed_contract, cancelled
+    status: str  # submitted, reviewed, in_progress, completed

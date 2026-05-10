@@ -27,11 +27,11 @@ class DashboardService:
         # Webinar registrations
         total_webinar_registrations = db.query(WebinarRegistration).count()
         
-        # Conversion rate (confirmed contracts / total requests)
-        confirmed_contracts = db.query(ServiceRequest).filter(
-            ServiceRequest.status == "confirmed_contract"
+        # Conversion rate (completed / total requests)
+        completed_requests = db.query(ServiceRequest).filter(
+            ServiceRequest.status == "completed"
         ).count()
-        conversion_rate = (confirmed_contracts / total_requests * 100) if total_requests > 0 else 0
+        conversion_rate = (completed_requests / total_requests * 100) if total_requests > 0 else 0
         
         # Average satisfaction
         avg_rating = db.query(func.avg(CustomerFeedback.rating)).scalar()
@@ -150,55 +150,57 @@ class DashboardService:
     
     @staticmethod
     def get_conversion_funnel(db: Session) -> ConversionFunnel:
-        """Get conversion funnel metrics"""
+        """Get conversion funnel metrics based on service request progression"""
         total_requests = db.query(ServiceRequest).count()
         
-        # Count requests at each stage
-        qualified_count = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['qualified', 'proposal_sent', 'negotiation', 'confirmed_contract'])
+        # Submitted = all requests (everything starts as submitted)
+        submitted_count = total_requests
+        
+        # Reviewed = requests that moved past submitted (reviewed, in_progress, completed)
+        reviewed_count = db.query(ServiceRequest).filter(
+            ServiceRequest.status.in_(['reviewed', 'in_progress', 'completed'])
         ).count()
         
-        proposal_count = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['proposal_sent', 'negotiation', 'confirmed_contract'])
+        # In Progress = requests actively being worked on (in_progress, completed)
+        in_progress_count = db.query(ServiceRequest).filter(
+            ServiceRequest.status.in_(['in_progress', 'completed'])
         ).count()
         
-        negotiation_count = db.query(ServiceRequest).filter(
-            ServiceRequest.status.in_(['negotiation', 'confirmed_contract'])
+        # Completed = fully completed requests
+        completed_count = db.query(ServiceRequest).filter(
+            ServiceRequest.status == 'completed'
         ).count()
         
-        contracted_count = db.query(ServiceRequest).filter(
-            ServiceRequest.status == 'confirmed_contract'
-        ).count()
+        conversion_rate = round((completed_count / total_requests * 100) if total_requests > 0 else 0, 1)
         
         stages = [
             ConversionFunnelStage(
-                label="Inquiries",
-                count=total_requests,
+                label="Submitted",
+                count=submitted_count,
                 percentage=100.0
             ),
             ConversionFunnelStage(
-                label="Qualified",
-                count=qualified_count,
-                percentage=round((qualified_count / total_requests * 100) if total_requests > 0 else 0, 1)
+                label="Reviewed",
+                count=reviewed_count,
+                percentage=round((reviewed_count / total_requests * 100) if total_requests > 0 else 0, 1)
             ),
             ConversionFunnelStage(
-                label="Proposal Sent",
-                count=proposal_count,
-                percentage=round((proposal_count / total_requests * 100) if total_requests > 0 else 0, 1)
+                label="In Progress",
+                count=in_progress_count,
+                percentage=round((in_progress_count / total_requests * 100) if total_requests > 0 else 0, 1)
             ),
             ConversionFunnelStage(
-                label="In Negotiation",
-                count=negotiation_count,
-                percentage=round((negotiation_count / total_requests * 100) if total_requests > 0 else 0, 1)
-            ),
-            ConversionFunnelStage(
-                label="Contracted",
-                count=contracted_count,
-                percentage=round((contracted_count / total_requests * 100) if total_requests > 0 else 0, 1)
+                label="Completed",
+                count=completed_count,
+                percentage=round((completed_count / total_requests * 100) if total_requests > 0 else 0, 1)
             )
         ]
         
-        return ConversionFunnel(stages=stages)
+        return ConversionFunnel(
+            total_requests=total_requests,
+            stages=stages,
+            conversion_rate=conversion_rate
+        )
     
     @staticmethod
     def get_customer_satisfaction(db: Session) -> CustomerSatisfactionMetrics:

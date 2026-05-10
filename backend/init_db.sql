@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS service_requests (
     country VARCHAR NOT NULL,
     industry_sector VARCHAR NOT NULL,
     additional_notes TEXT,
-    status VARCHAR NOT NULL DEFAULT 'new_inquiry',
+    status VARCHAR NOT NULL DEFAULT 'submitted',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     contract_confirmed_at TIMESTAMP WITH TIME ZONE
@@ -158,6 +158,20 @@ CREATE TABLE IF NOT EXISTS feedback_tokens (
 );
 
 CREATE INDEX IF NOT EXISTS idx_feedback_tokens_token ON feedback_tokens(token);
+
+-- Activity Logs Table
+CREATE TABLE IF NOT EXISTS activity_logs (
+    id SERIAL PRIMARY KEY,
+    activity_type VARCHAR NOT NULL,
+    title VARCHAR NOT NULL,
+    details TEXT,
+    actor_name VARCHAR,
+    actor_email VARCHAR,
+    reference_id INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs(created_at DESC);
 
 -- Insert Sample Satisfaction Feedback Data
 INSERT INTO satisfaction_feedback (token, feedback_type, rating, experience_rating, recommendation_score, liked_most, improvements, comments, respondent_name, respondent_email, submitted_at)

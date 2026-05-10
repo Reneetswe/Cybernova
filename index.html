@@ -3,32 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CyberNova Analytics – AI-Powered Cybersecurity</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #050A0E;
     --surface: #0C1419;
     --panel: #101820;
     --border: #1A2A36;
-    --accent: #00C9A7;
+    --accent: #00D9FF;
     --accent2: #0088FF;
     --warn: #FF6B35;
     --text: #E8F0F5;
     --muted: #6A8A9A;
-    --glow: 0 0 24px rgba(0,201,167,0.18);
+    --glow: 0 0 24px rgba(0,217,255,0.18);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: 'Electrolize', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
 
   /* NAV */
   body > nav { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(5,10,14,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 64px; }
-  .nav-logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--accent); letter-spacing: -0.5px; }
+  .nav-logo { font-family: 'Electrolize', sans-serif; font-weight: 800; font-size: 20px; color: var(--accent); letter-spacing: -0.5px; }
   .nav-logo span { color: var(--text); }
   .nav-links { display: flex; gap: 32px; align-items: center; }
   .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
   .nav-links a:hover { color: var(--accent); }
-  .nav-btn { background: var(--accent); color: #050A0E; padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
+  .nav-btn { background: var(--accent); color: #050A0E; padding: 8px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; font-family: 'Electrolize', sans-serif; transition: opacity 0.2s; }
   .nav-btn:hover { opacity: 0.85; }
 
   /* SECTIONS */
@@ -37,48 +36,67 @@
   #dashboard.page { padding-top: 0; }
 
   /* HERO */
-  .hero { position: relative; padding: 100px 40px 80px; text-align: center; overflow: hidden; }
-  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,201,167,0.12) 0%, transparent 60%); pointer-events: none; }
-  .hero-tag { display: inline-block; background: rgba(0,201,167,0.1); border: 1px solid rgba(0,201,167,0.3); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
-  .hero h1 { font-family: 'Syne', sans-serif; font-size: clamp(40px,6vw,72px); font-weight: 800; line-height: 1.08; letter-spacing: -2px; max-width: 800px; margin: 0 auto 24px; }
+  .hero { 
+    position: relative; 
+    padding: 100px 40px 80px; 
+    text-align: left; 
+    overflow: hidden; 
+    min-height: 600px; 
+    display: flex; 
+    align-items: center; 
+    background: url('images/cyber-lock-bg.jpg') no-repeat center right;
+    background-size: cover;
+  }
+  .hero::before { 
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background: linear-gradient(to right, rgba(5,10,14,0.95) 0%, rgba(5,10,14,0.7) 40%, transparent 100%);
+    pointer-events: none;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 600px; }
+  .hero-tag { display: inline-block; background: rgba(0,217,255,0.1); border: 1px solid rgba(0,217,255,0.3); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+  .hero h1 { font-family: 'Electrolize', sans-serif; font-size: clamp(40px,6vw,72px); font-weight: 400; line-height: 1.08; letter-spacing: -2px; margin: 0 0 24px; }
   .hero h1 em { color: var(--accent); font-style: normal; }
-  .hero p { max-width: 520px; margin: 0 auto 40px; color: var(--muted); font-size: 17px; }
-  .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-  .btn-primary { background: var(--accent); color: #050A0E; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,201,167,0.3); }
-  .btn-secondary { background: transparent; color: var(--text); padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .hero p { max-width: 520px; margin: 0 0 40px; color: var(--muted); font-size: 17px; }
+  .hero-ctas { display: flex; gap: 16px; justify-content: flex-start; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #050A0E; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; border: none; font-family: 'Electrolize', sans-serif; transition: all 0.2s; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,217,255,0.3); }
+  .btn-secondary { background: transparent; color: var(--text); padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; cursor: pointer; border: 1px solid var(--border); font-family: 'Electrolize', sans-serif; transition: all 0.2s; }
   .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
 
   /* STATS BAR */
   .stats-bar { display: flex; gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin: 0 40px; }
   .stat-item { flex: 1; padding: 28px 24px; text-align: center; border-right: 1px solid var(--border); }
   .stat-item:last-child { border-right: none; }
-  .stat-num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent); }
+  .stat-num { font-family: 'Electrolize', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent); }
   .stat-label { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
   /* SERVICES */
   .section { padding: 80px 40px; }
-  .section-title { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .section-title { font-family: 'Electrolize', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
   .section-sub { color: var(--muted); margin-bottom: 48px; font-size: 16px; }
   .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 16px; }
-  .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; transition: all 0.25s; cursor: pointer; }
+  .service-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0; padding: 28px; transition: all 0.25s; cursor: pointer; }
   .service-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--glow); }
-  .service-icon { font-size: 28px; margin-bottom: 16px; }
-  .service-card h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .service-card h3 { font-family: 'Electrolize', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
   .service-card p { font-size: 14px; color: var(--muted); line-height: 1.7; }
 
   /* FORM */
   .form-section { max-width: 760px; margin: 0 auto; }
-  .form-header { background: linear-gradient(135deg, rgba(0,201,167,0.08), rgba(0,136,255,0.05)); border: 1px solid var(--border); border-radius: 16px; padding: 36px 40px 28px; margin-bottom: 32px; }
-  .form-header h2 { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .form-header { background: linear-gradient(135deg, rgba(0,217,255,0.08), rgba(0,136,255,0.05)); border: 1px solid var(--border); border-radius: 16px; padding: 36px 40px 28px; margin-bottom: 32px; }
+  .form-header h2 { font-family: 'Electrolize', sans-serif; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
   .form-header p { color: var(--muted); margin-top: 8px; }
   .form-body { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px 40px; }
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
   .form-grid.full { grid-template-columns: 1fr; }
   .form-group { display: flex; flex-direction: column; gap: 8px; }
   .form-group label { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
-  .form-group input, .form-group select, .form-group textarea { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,201,167,0.08); }
+  .form-group input, .form-group select, .form-group textarea { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; color: var(--text); font-family: 'Electrolize', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,217,255,0.08); }
   .form-group select option { background: var(--panel); }
   .form-group textarea { resize: vertical; min-height: 100px; }
   .service-checkboxes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -86,59 +104,58 @@
   .checkbox-item:hover { border-color: var(--accent); }
   .checkbox-item input[type=checkbox] { accent-color: var(--accent); width: 16px; height: 16px; }
   .checkbox-item span { font-size: 14px; }
-  .form-submit { background: var(--accent); color: #050A0E; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; border: none; font-family: 'Syne', sans-serif; width: 100%; margin-top: 24px; transition: all 0.2s; letter-spacing: 0.3px; }
+  .form-submit { background: var(--accent); color: #050A0E; padding: 16px; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; border: none; font-family: 'Electrolize', sans-serif; width: 100%; margin-top: 24px; transition: all 0.2s; letter-spacing: 0.3px; }
   .form-submit:hover { opacity: 0.9; transform: translateY(-1px); }
-  .success-msg { display: none; background: rgba(0,201,167,0.08); border: 1px solid rgba(0,201,167,0.3); border-radius: 10px; padding: 20px; text-align: center; color: var(--accent); font-weight: 600; margin-top: 20px; }
+  .success-msg { display: none; background: rgba(0,217,255,0.08); border: 1px solid rgba(0,217,255,0.3); border-radius: 10px; padding: 20px; text-align: center; color: var(--accent); font-weight: 600; margin-top: 20px; }
   .error-msg { display: none; background: rgba(255,107,53,0.08); border: 1px solid rgba(255,107,53,0.3); border-radius: 10px; padding: 20px; text-align: center; color: var(--warn); font-weight: 600; margin-top: 20px; }
 
   /* MODAL */
   .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(5,10,14,0.85); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
   .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; max-width: 540px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
   .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 24px 28px; border-bottom: 1px solid var(--border); }
-  .modal-header h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; margin: 0; }
+  .modal-header h3 { font-family: 'Electrolize', sans-serif; font-size: 20px; font-weight: 700; margin: 0; }
   .modal-close { background: transparent; border: none; color: var(--muted); font-size: 32px; line-height: 1; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
   .modal-close:hover { color: var(--accent); }
   .modal-content form { padding: 24px 28px; }
 
   /* EVENTS */
   .events-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap: 20px; margin-bottom: 60px; }
-  .event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.25s; }
-  .event-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); border-color: rgba(0,201,167,0.3); }
+  .event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0; overflow: hidden; transition: all 0.25s; }
+  .event-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); border-color: rgba(0,217,255,0.3); }
   .event-banner { height: 6px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
   .event-body { padding: 24px; }
   .event-tag { display: inline-block; background: rgba(0,136,255,0.1); color: var(--accent2); border: 1px solid rgba(0,136,255,0.2); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 14px; }
-  .event-card h3 { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
+  .event-card h3 { font-family: 'Electrolize', sans-serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; line-height: 1.3; }
   .event-card p { font-size: 14px; color: var(--muted); margin-bottom: 18px; }
   .event-meta { display: flex; gap: 16px; font-size: 13px; color: var(--muted); margin-bottom: 18px; }
   .event-meta span::before { margin-right: 5px; }
-  .event-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+  .event-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 9px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Electrolize', sans-serif; transition: all 0.2s; }
   .event-btn:hover { background: var(--accent); color: #050A0E; }
 
   /* RESOURCES */
   .resources-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 16px; }
-  .resource-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; gap: 16px; align-items: flex-start; transition: all 0.2s; }
-  .resource-card:hover { border-color: rgba(0,201,167,0.3); }
-  .resource-icon { width: 44px; height: 44px; background: rgba(0,201,167,0.08); border: 1px solid rgba(0,201,167,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
-  .resource-info h4 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .resource-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0; padding: 24px; transition: all 0.2s; }
+  .resource-card:hover { border-color: rgba(0,217,255,0.3); }
+  .resource-info h4 { font-family: 'Electrolize', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 6px; }
   .resource-info p { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
   .resource-dl { font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
   .resource-dl:hover { opacity: 0.8; }
 
   /* DASHBOARD */
-  .dash-header { background: linear-gradient(135deg, rgba(0,201,167,0.06), rgba(0,136,255,0.04)); border-bottom: 1px solid var(--border); padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; }
-  .dash-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; }
+  .dash-header { background: linear-gradient(135deg, rgba(0,217,255,0.06), rgba(0,136,255,0.04)); border-bottom: 1px solid var(--border); padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; }
+  .dash-title { font-family: 'Electrolize', sans-serif; font-size: 26px; font-weight: 800; }
   .dash-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
   .dash-date { font-size: 13px; color: var(--muted); }
   .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 32px 40px 0; }
   .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
   .kpi-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; margin-bottom: 12px; }
-  .kpi-value { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+  .kpi-value { font-family: 'Electrolize', sans-serif; font-size: 36px; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 8px; }
   .kpi-change { font-size: 13px; color: #2ECC71; }
   .kpi-change.down { color: var(--warn); }
   .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 40px; }
   .charts-row.three { grid-template-columns: 1fr 1fr 1fr; }
   .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-  .chart-card h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+  .chart-card h3 { font-family: 'Electrolize', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
   .chart-canvas { width: 100%; height: 200px; display: flex; align-items: flex-end; gap: 8px; }
   /* Bar chart */
   .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -153,13 +170,13 @@
   .admin-table-section { padding: 0 40px 40px; }
   .table-wrapper { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
   .table-header { padding: 20px 24px; border-bottom: 1px solid var(--border); }
-  .table-header h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin: 0; }
+  .table-header h3 { font-family: 'Electrolize', sans-serif; font-size: 16px; font-weight: 700; margin: 0; }
   .admin-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .admin-table thead { background: rgba(0,201,167,0.03); }
+  .admin-table thead { background: rgba(0,217,255,0.03); }
   .admin-table th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); white-space: nowrap; }
   .admin-table td { padding: 12px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; }
   .admin-table tbody tr:last-child td { border-bottom: none; }
-  .admin-table tbody tr:hover { background: rgba(0,201,167,0.02); }
+  .admin-table tbody tr:hover { background: rgba(0,217,255,0.02); }
   
   /* Column widths for Service Request table */
   .admin-table th:nth-child(1), .admin-table td:nth-child(1) { width: 12%; }
@@ -171,14 +188,12 @@
   .admin-table th:nth-child(7), .admin-table td:nth-child(7) { width: 10%; }
   .admin-table th:nth-child(8), .admin-table td:nth-child(8) { width: 10%; }
   
-  .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
-  .status-badge.new_inquiry { background: rgba(0,136,255,0.1); color: var(--accent2); border: 1px solid rgba(0,136,255,0.2); }
-  .status-badge.qualified { background: rgba(0,201,167,0.1); color: var(--accent); border: 1px solid rgba(0,201,167,0.2); }
-  .status-badge.proposal_sent { background: rgba(155,89,182,0.1); color: #9B59B6; border: 1px solid rgba(155,89,182,0.2); }
-  .status-badge.negotiation { background: rgba(255,149,0,0.1); color: #FF9500; border: 1px solid rgba(255,149,0,0.2); }
-  .status-badge.confirmed_contract { background: rgba(46,204,113,0.1); color: #2ECC71; border: 1px solid rgba(46,204,113,0.2); }
-  .status-badge.cancelled { background: rgba(255,107,53,0.1); color: var(--warn); border: 1px solid rgba(255,107,53,0.2); }
-  .status-select { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 11px; font-family: 'DM Sans', sans-serif; cursor: pointer; width: 100%; }
+  .status-badge { display: inline-block; padding: 5px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+  .status-badge.submitted { background: rgba(0,136,255,0.15); color: #0056b3; border: 1px solid rgba(0,136,255,0.3); }
+  .status-badge.reviewed { background: rgba(0,217,255,0.15); color: #0088cc; border: 1px solid rgba(0,217,255,0.3); }
+  .status-badge.in_progress { background: rgba(255,149,0,0.15); color: #d97706; border: 1px solid rgba(255,149,0,0.3); }
+  .status-badge.completed { background: rgba(46,204,113,0.15); color: #059669; border: 1px solid rgba(46,204,113,0.3); }
+  .status-select { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 11px; font-family: 'Electrolize', sans-serif; cursor: pointer; width: 100%; }
   .status-select:focus { outline: none; border-color: var(--accent); }
   .empty-state { padding: 60px 24px; text-align: center; color: var(--muted); font-size: 14px; }
   .pie-legend { display: flex; flex-direction: column; gap: 8px; }
@@ -186,14 +201,21 @@
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   /* Line chart */
   .line-svg { width: 100%; height: 160px; }
-  /* Conversion */
-  .conversion-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-  .conv-label { font-size: 13px; color: var(--text); width: 120px; }
-  .conv-bar-wrap { flex: 1; height: 8px; background: var(--border); border-radius: 4px; margin: 0 12px; }
-  .conv-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  /* Conversion Funnel */
+  .conversion-row { display: flex; align-items: center; margin-bottom: 14px; position: relative; }
+  .conv-label { font-size: 13px; color: var(--text); width: 100px; font-weight: 600; }
+  .conv-bar-wrap { flex: 1; height: 32px; background: var(--border); border-radius: 6px; margin: 0 12px; position: relative; overflow: hidden; }
+  .conv-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; display: flex; align-items: center; padding-left: 10px; }
+  .conv-bar-fill span { font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; }
+  .conv-pct { font-size: 13px; font-weight: 700; width: 50px; text-align: right; }
+  .conv-count { font-size: 11px; color: var(--muted); width: 50px; text-align: right; }
+  .conv-bar-fill.stage-submitted { background: #0088FF; }
+  .conv-bar-fill.stage-reviewed { background: #0ea5e9; }
+  .conv-bar-fill.stage-in-progress { background: #d97706; }
+  .conv-bar-fill.stage-completed { background: #059669; }
   .conv-pct { font-size: 13px; font-weight: 700; color: var(--accent); width: 40px; text-align: right; }
   /* Satisfaction */
-  .sat-score { font-family: 'Syne', sans-serif; font-size: 56px; font-weight: 800; color: var(--accent); text-align: center; line-height: 1; }
+  .sat-score { font-family: 'Electrolize', sans-serif; font-size: 56px; font-weight: 800; color: var(--accent); text-align: center; line-height: 1; }
   .sat-stars { text-align: center; font-size: 22px; margin: 8px 0; }
   .sat-sub { text-align: center; font-size: 13px; color: var(--muted); }
   .sat-breakdown { margin-top: 20px; }
@@ -206,8 +228,8 @@
   /* LOGIN */
   .login-wrap { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 64px); padding: 40px; }
   .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 48px 44px; width: 100%; max-width: 420px; }
-  .login-logo { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
-  .login-box h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .login-logo { font-family: 'Electrolize', sans-serif; font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 8px; }
+  .login-box h2 { font-family: 'Electrolize', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
   .login-box p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
   .login-hint { font-size: 12px; color: var(--muted); margin-top: 16px; text-align: center; }
   .login-hint code { color: var(--accent); }
@@ -219,14 +241,14 @@
   .admin-layout { display: flex; min-height: 100vh; background: #f5f6f8; }
   .admin-sidebar { width: 180px; background: #1a1a2e; color: #fff; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; transition: transform 0.3s; }
   .admin-sidebar-logo { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .admin-sidebar-logo .logo-icon { width: 36px; height: 36px; background: rgba(0,201,167,0.15); border: 1px solid rgba(0,201,167,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
+  .admin-sidebar-logo .logo-icon { width: 36px; height: 36px; background: rgba(0,217,255,0.15); border: 1px solid rgba(0,217,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
   .admin-sidebar-logo .logo-icon svg { width: 20px; height: 20px; }
-  .admin-sidebar-logo h2 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
+  .admin-sidebar-logo h2 { font-family: 'Electrolize', sans-serif; font-size: 16px; font-weight: 800; color: #fff; margin: 0; }
   .admin-sidebar-logo p { font-size: 10px; color: rgba(255,255,255,0.5); margin: 2px 0 0; }
   .admin-sidebar-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
   .admin-sidebar-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 18px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; cursor: pointer; }
   .admin-sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,0.05); }
-  .admin-sidebar-nav a.active { color: #fff; background: rgba(0,201,167,0.12); border-left-color: #00C9A7; }
+  .admin-sidebar-nav a.active { color: #fff; background: rgba(0,217,255,0.12); border-left-color: #00D9FF; }
   .admin-sidebar-nav a svg { width: 18px; height: 18px; flex-shrink: 0; }
   .admin-sidebar-nav .nav-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 8px 16px; }
   .admin-main { flex: 1; margin-left: 180px; display: flex; flex-direction: column; min-height: 100vh; }
@@ -246,11 +268,11 @@
   .admin-sub-page.active { display: block; }
 
   /* Admin page titles */
-  .admin-page-title { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 4px; }
+  .admin-page-title { font-family: 'Electrolize', sans-serif; font-size: 24px; font-weight: 800; color: #111827; margin-bottom: 4px; }
   .admin-page-sub { font-size: 14px; color: #6b7280; margin-bottom: 24px; }
   .admin-breadcrumb { font-size: 12px; color: #9ca3af; margin-bottom: 24px; }
   .admin-breadcrumb a { color: #6b7280; text-decoration: none; }
-  .admin-breadcrumb a:hover { color: #00C9A7; }
+  .admin-breadcrumb a:hover { color: #00D9FF; }
 
   /* Admin KPI cards */
   .admin-kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
@@ -259,14 +281,14 @@
   .admin-kpi .kpi-icon svg { width: 22px; height: 22px; color: #6b7280; }
   .admin-kpi .kpi-info { flex: 1; }
   .admin-kpi .kpi-info .label { font-size: 12px; color: #6b7280; font-weight: 500; }
-  .admin-kpi .kpi-info .value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #111827; line-height: 1.2; }
+  .admin-kpi .kpi-info .value { font-family: 'Electrolize', sans-serif; font-size: 28px; font-weight: 800; color: #111827; line-height: 1.2; }
   .admin-kpi .kpi-info .change { font-size: 12px; color: #10b981; }
 
   /* Admin KPI cards (Analytics & Satisfaction pages) */
   .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
   .admin-kpi-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
   .admin-kpi-label { font-size: 12px; color: #6b7280; font-weight: 500; margin-bottom: 4px; }
-  .admin-kpi-value { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: #111827; line-height: 1.2; }
+  .admin-kpi-value { font-family: 'Electrolize', sans-serif; font-size: 28px; font-weight: 800; color: #111827; line-height: 1.2; }
   .admin-kpi-change { font-size: 12px; margin-top: 4px; }
   .admin-kpi-change.up { color: #10b981; }
   .admin-kpi-change.down { color: #ef4444; }
@@ -276,16 +298,16 @@
   /* Admin chart cards */
   .admin-charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
   .admin-chart-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; }
-  .admin-chart-card h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+  .admin-chart-card h3 { font-family: 'Electrolize', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 20px; }
 
   /* Admin tables */
   .admin-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
   .admin-card-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; }
-  .admin-card-header h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
+  .admin-card-header h3 { font-family: 'Electrolize', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin: 0; }
   .admin-data-table { width: 100%; border-collapse: collapse; }
   .admin-data-table thead { background: #f9fafb; }
-  .admin-data-table th { padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #6b7280; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
-  .admin-data-table td { padding: 12px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  .admin-data-table th { padding: 10px 16px; text-align: left; font-size: 12px; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb; white-space: nowrap; }
+  .admin-data-table td { padding: 12px 16px; font-size: 14px; color: #111827; border-bottom: 1px solid #f3f4f6; vertical-align: middle; font-weight: 500; }
   .admin-data-table tbody tr:last-child td { border-bottom: none; }
   .admin-data-table tbody tr:hover { background: #f9fafb; }
 
@@ -302,18 +324,18 @@
   .admin-filters { display: flex; gap: 16px; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; }
   .admin-filter-group { display: flex; flex-direction: column; gap: 4px; }
   .admin-filter-group label { font-size: 12px; font-weight: 600; color: #6b7280; }
-  .admin-filter-group input, .admin-filter-group select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #374151; font-family: 'DM Sans', sans-serif; outline: none; min-width: 180px; }
-  .admin-filter-group input:focus, .admin-filter-group select:focus { border-color: #00C9A7; box-shadow: 0 0 0 2px rgba(0,201,167,0.1); }
-  .admin-filter-btn { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 13px; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-  .admin-filter-btn:hover { border-color: #00C9A7; color: #00C9A7; }
+  .admin-filter-group input, .admin-filter-group select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 12px; font-size: 13px; color: #374151; font-family: 'Electrolize', sans-serif; outline: none; min-width: 180px; }
+  .admin-filter-group input:focus, .admin-filter-group select:focus { border-color: #00D9FF; box-shadow: 0 0 0 2px rgba(0,217,255,0.1); }
+  .admin-filter-btn { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 8px 16px; font-size: 13px; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: 'Electrolize', sans-serif; transition: all 0.2s; }
+  .admin-filter-btn:hover { border-color: #00D9FF; color: #00D9FF; }
   .admin-filter-btn svg { width: 16px; height: 16px; }
 
   /* Admin pagination */
   .admin-pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid #e5e7eb; }
   .admin-pagination .info { font-size: 13px; color: #6b7280; }
   .admin-pagination .pages { display: flex; gap: 4px; }
-  .admin-pagination .pages button { background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #374151; cursor: pointer; min-width: 32px; font-family: 'DM Sans', sans-serif; }
-  .admin-pagination .pages button:hover { border-color: #00C9A7; }
+  .admin-pagination .pages button { background: #fff; border: 1px solid #d1d5db; border-radius: 6px; padding: 6px 10px; font-size: 12px; color: #374151; cursor: pointer; min-width: 32px; font-family: 'Electrolize', sans-serif; }
+  .admin-pagination .pages button:hover { border-color: #00D9FF; }
   .admin-pagination .pages button.active { background: #111827; color: #fff; border-color: #111827; }
 
   /* Admin actions */
@@ -322,7 +344,7 @@
   .admin-action-btn svg { width: 18px; height: 18px; }
 
   /* Admin view link */
-  .admin-view-link { font-size: 13px; color: #00C9A7; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .admin-view-link { font-size: 13px; color: #00D9FF; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
   .admin-view-link:hover { opacity: 0.8; }
 
   /* Settings page */
@@ -330,30 +352,30 @@
   .settings-tabs { width: 200px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; flex-shrink: 0; align-self: flex-start; }
   .settings-tabs a { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; font-size: 13px; color: #374151; text-decoration: none; border-left: 3px solid transparent; cursor: pointer; transition: all 0.2s; }
   .settings-tabs a:hover { background: #f9fafb; }
-  .settings-tabs a.active { background: #f0fdf4; color: #00C9A7; border-left-color: #00C9A7; font-weight: 600; }
+  .settings-tabs a.active { background: #eff6ff; color: #00D9FF; border-left-color: #00D9FF; font-weight: 600; }
   .settings-tabs a svg { width: 16px; height: 16px; color: #9ca3af; }
   .settings-content { flex: 1; }
   .settings-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-  .settings-section h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 20px; }
+  .settings-section h3 { font-family: 'Electrolize', sans-serif; font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 20px; }
   .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
   .settings-field { display: flex; flex-direction: column; gap: 6px; }
   .settings-field label { font-size: 12px; font-weight: 600; color: #374151; }
-  .settings-field input, .settings-field select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #374151; font-family: 'DM Sans', sans-serif; outline: none; }
-  .settings-field input:focus, .settings-field select:focus { border-color: #00C9A7; }
-  .settings-save-btn { background: #111827; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; float: right; }
+  .settings-field input, .settings-field select { background: #fff; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 13px; color: #374151; font-family: 'Electrolize', sans-serif; outline: none; }
+  .settings-field input:focus, .settings-field select:focus { border-color: #00D9FF; }
+  .settings-save-btn { background: #111827; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'Electrolize', sans-serif; float: right; }
   .settings-save-btn:hover { background: #1f2937; }
   .settings-toggle { display: flex; align-items: center; justify-content: space-between; }
   .toggle-switch { position: relative; width: 44px; height: 24px; }
   .toggle-switch input { opacity: 0; width: 0; height: 0; }
   .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; border-radius: 12px; transition: 0.3s; }
   .toggle-slider:before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.3s; }
-  .toggle-switch input:checked + .toggle-slider { background: #00C9A7; }
+  .toggle-switch input:checked + .toggle-slider { background: #00D9FF; }
   .toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
 
   /* Export page */
   .export-step { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 16px; }
-  .export-step h3 { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px; }
-  .export-btn { background: #374151; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 8px; margin: 0 auto; }
+  .export-step h3 { font-family: 'Electrolize', sans-serif; font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 16px; }
+  .export-btn { background: #374151; color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Electrolize', sans-serif; display: flex; align-items: center; gap: 8px; margin: 0 auto; }
   .export-btn:hover { background: #1f2937; }
   .export-btn svg { width: 18px; height: 18px; }
 
@@ -374,13 +396,16 @@
   /* Admin footer */
   .admin-footer { padding: 20px 32px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #9ca3af; background: #fff; }
   .admin-footer a { color: #6b7280; text-decoration: none; margin-left: 16px; }
-  .admin-footer a:hover { color: #00C9A7; }
+  .admin-footer a:hover { color: #00D9FF; }
 
   /* Admin overrides for reused chart elements */
-  .admin-layout .conversion-row { display: flex; justify-content: space-between; align-items: center; }
-  .admin-layout .conv-label { font-size: 12px; color: #374151; }
-  .admin-layout .conv-bar-wrap { flex: 1; height: 8px; background: #e5e7eb; border-radius: 4px; margin: 0 12px; }
-  .admin-layout .conv-bar-fill { height: 100%; border-radius: 4px; }
+  .admin-layout .conversion-row { display: flex; align-items: center; margin-bottom: 14px; }
+  .admin-layout .conv-label { font-size: 13px; color: #111827; font-weight: 600; width: 100px; }
+  .admin-layout .conv-bar-wrap { flex: 1; height: 32px; background: #f3f4f6; border-radius: 6px; margin: 0 12px; overflow: hidden; }
+  .admin-layout .conv-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 10px; }
+  .admin-layout .conv-bar-fill span { font-size: 11px; font-weight: 700; color: #fff; }
+  .admin-layout .conv-pct { font-size: 13px; font-weight: 700; color: #111827; width: 50px; text-align: right; }
+  .admin-layout .conv-count { font-size: 11px; color: #6b7280; width: 50px; text-align: right; }
   .admin-layout .conv-pct { font-size: 13px; font-weight: 700; }
   .admin-layout .sat-row { display: flex; align-items: center; gap: 10px; }
   .admin-layout .sat-track { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; }
@@ -388,15 +413,16 @@
 
   /* NPS / Feedback form */
   .nps-btn { display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;color:#374151;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s; }
-  .nps-btn:hover { border-color:#00C9A7;color:#00C9A7; }
-  .nps-btn.active { background:#00C9A7;color:#050A0E;border-color:#00C9A7; }
+  .nps-btn:hover { border-color:#00D9FF;color:#00D9FF; }
+  .nps-btn.active { background:#00D9FF;color:#050A0E;border-color:#00D9FF; }
   #feedback.page { padding-top: 0; }
 
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
 
   /* TOAST */
-  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--surface); border: 1px solid rgba(0,201,167,0.4); color: var(--accent); padding: 14px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 999; display: none; }
+  .toast { position: fixed; bottom: 30px; right: 30px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999; display: none; }
+  .toast.error { border-color: var(--warn); color: var(--warn); }
 
   @media (max-width: 768px) {
     body > nav { padding: 0 20px; }
@@ -413,6 +439,7 @@
     .form-body, .form-header { padding: 24px; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -430,12 +457,14 @@
 <!-- HOME -->
 <div id="home" class="page active">
   <div class="hero">
-    <div class="hero-tag">AI-Powered Cybersecurity</div>
-    <h1>Secure Your Business<br>with <em>Intelligent</em> Defence</h1>
-    <p>CyberNova Analytics delivers real-time threat monitoring, risk assessments, and predictive security intelligence for businesses across Southern Africa.</p>
-    <div class="hero-ctas">
-      <button class="btn-primary" onclick="showPage('request')">Request a Cyber Risk Assessment</button>
-      <button class="btn-secondary" onclick="showPage('events')">View Upcoming Webinars →</button>
+    <div class="hero-content">
+      
+      <h1>Secure Your Business<br>with <em>Intelligent</em> Defence</h1>
+      <p>CyberNova Analytics delivers real-time threat monitoring, risk assessments, and predictive security intelligence for businesses across Southern Africa.</p>
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="showPage('request')">Request a Cyber Risk Assessment</button>
+        <button class="btn-secondary" onclick="showPage('events')">View Upcoming Webinars →</button>
+      </div>
     </div>
   </div>
 
@@ -451,38 +480,32 @@
     <div class="section-sub">Enterprise-grade cybersecurity intelligence, built for the African market</div>
     <div class="services-grid">
       <div class="service-card">
-        <div class="service-icon">🤖</div>
         <h3>AI Cyber Assistant</h3>
         <p>24/7 intelligent threat detection that monitors your network in real-time and explains risks in plain language with recommended mitigations.</p>
       </div>
       <div class="service-card">
-        <div class="service-icon">🔍</div>
         <h3>Network Security Audit</h3>
         <p>Comprehensive review of your infrastructure vulnerabilities, misconfigurations, and compliance gaps with a detailed remediation roadmap.</p>
       </div>
       <div class="service-card">
-        <div class="service-icon">🎯</div>
         <h3>Penetration Testing</h3>
         <p>Ethical hacking by certified professionals to expose weaknesses before malicious actors can exploit them — with full executive reporting.</p>
       </div>
       <div class="service-card">
-        <div class="service-icon">📅</div>
         <h3>Schedule Consultation</h3>
         <p>One-on-one session with a senior security advisor to understand your specific risk profile and design a custom protection strategy.</p>
       </div>
       <div class="service-card">
-        <div class="service-icon">🎓</div>
         <h3>Cyber Awareness Webinars</h3>
         <p>Live and recorded sessions covering phishing, social engineering, ransomware defence, and regulatory compliance for your entire team.</p>
       </div>
       <div class="service-card">
-        <div class="service-icon">⚡</div>
         <h3>Predictive Maintenance</h3>
         <p>AI-powered system health monitoring that predicts failures before they occur, reducing downtime and security exposure.</p>
       </div>
     </div>
   </div>
-  <footer>© 2025 CyberNova Analytics Ltd — Gaborone, Botswana &nbsp;·&nbsp; AI-Powered Cybersecurity for Southern Africa</footer>
+  <footer>© 2026 CyberNova Analytics Ltd — Gaborone, Botswana &nbsp;·&nbsp; AI-Powered Cybersecurity for Southern Africa</footer>
 </div>
 
 <!-- SERVICES -->
@@ -491,15 +514,15 @@
     <div class="section-title">All Services</div>
     <div class="section-sub">Comprehensive protection across every layer of your digital infrastructure</div>
     <div class="services-grid">
-      <div class="service-card"><div class="service-icon">🤖</div><h3>AI Cyber Assistant</h3><p>Real-time anomaly detection using machine learning models trained on Southern African threat patterns. Explains risks without technical jargon.</p></div>
-      <div class="service-card"><div class="service-icon">🔍</div><h3>Network Security Audit</h3><p>Full inventory and vulnerability assessment of your on-premise and cloud infrastructure, with a prioritised remediation plan.</p></div>
-      <div class="service-card"><div class="service-icon">🎯</div><h3>Penetration Testing</h3><p>Black-box, white-box, and grey-box penetration tests by OSCP-certified ethical hackers, with compliance-ready reporting.</p></div>
-      <div class="service-card"><div class="service-icon">📅</div><h3>Schedule Consultation</h3><p>Strategic security advisory sessions tailored to your industry vertical, whether banking, healthcare, government, or SME.</p></div>
-      <div class="service-card"><div class="service-icon">🎓</div><h3>Cyber Awareness Webinars</h3><p>Monthly live webinars and an on-demand library of security training content. Certificates issued on completion.</p></div>
-      <div class="service-card"><div class="service-icon">📊</div><h3>Risk Dashboard</h3><p>Live executive dashboard showing your organisation's cyber risk score, recent incidents, and improvement trajectory over time.</p></div>
+      <div class="service-card"><h3>AI Cyber Assistant</h3><p>Real-time anomaly detection using machine learning models trained on Southern African threat patterns. Explains risks without technical jargon.</p></div>
+      <div class="service-card"><h3>Network Security Audit</h3><p>Full inventory and vulnerability assessment of your on-premise and cloud infrastructure, with a prioritised remediation plan.</p></div>
+      <div class="service-card"><h3>Penetration Testing</h3><p>Black-box, white-box, and grey-box penetration tests by OSCP-certified ethical hackers, with compliance-ready reporting.</p></div>
+      <div class="service-card"><h3>Schedule Consultation</h3><p>Strategic security advisory sessions tailored to your industry vertical, whether banking, healthcare, government, or SME.</p></div>
+      <div class="service-card"><h3>Cyber Awareness Webinars</h3><p>Monthly live webinars and an on-demand library of security training content. Certificates issued on completion.</p></div>
+      <div class="service-card"><h3>Risk Dashboard</h3><p>Live executive dashboard showing your organisation's cyber risk score, recent incidents, and improvement trajectory over time.</p></div>
     </div>
   </div>
-  <footer>© 2025 CyberNova Analytics Ltd — Gaborone, Botswana</footer>
+  <footer>© 2026 CyberNova Analytics Ltd — Gaborone, Botswana</footer>
 </div>
 
 <!-- REQUEST FORM -->
@@ -507,7 +530,7 @@
   <div class="section">
     <div class="form-section">
       <div class="form-header">
-        <h2>🛡️ Request a Cyber Risk Assessment</h2>
+        <h2> Request a Cyber Risk Assessment</h2>
         <p>Complete this form and a CyberNova analyst will contact you within 24 hours to schedule your assessment.</p>
       </div>
       <div class="form-body">
@@ -546,11 +569,11 @@
         <div class="form-group" style="margin-bottom:20px">
           <label>Type of Service Required *</label>
           <div class="service-checkboxes">
-            <label class="checkbox-item"><input type="checkbox" value="AI Cyber Assistant"><span>🤖 AI Cyber Assistant</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="Network Security Audit"><span>🔍 Network Security Audit</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="Penetration Testing"><span>🎯 Penetration Testing</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="Schedule Consultation"><span>📅 Schedule Consultation</span></label>
-            <label class="checkbox-item"><input type="checkbox" value="Cyber Awareness Webinar"><span>🎓 Join Cyber Awareness Webinar</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="AI Cyber Assistant"><span>AI Cyber Assistant</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Network Security Audit"><span>Network Security Audit</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Penetration Testing"><span>Penetration Testing</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Schedule Consultation"><span>Schedule Consultation</span></label>
+            <label class="checkbox-item"><input type="checkbox" value="Cyber Awareness Webinar"><span>Join Cyber Awareness Webinar</span></label>
           </div>
         </div>
         <div class="form-grid full">
@@ -560,11 +583,11 @@
           </div>
         </div>
         <button class="form-submit" onclick="submitForm()">Submit Assessment Request →</button>
-        <div class="success-msg" id="successMsg">✅ Request submitted! A CyberNova analyst will contact you within 24 hours.</div>
+        <div class="success-msg" id="successMsg">Request submitted! A CyberNova analyst will contact you within 24 hours.</div>
       </div>
     </div>
   </div>
-  <footer>© 2025 CyberNova Analytics Ltd</footer>
+  <footer>© 2026 CyberNova Analytics Ltd</footer>
 </div>
 
 <!-- EVENTS & RESOURCES -->
@@ -573,102 +596,57 @@
     <div class="section-title">Upcoming Webinars & Workshops</div>
     <div class="section-sub">Live virtual sessions with CyberNova's security experts — register to secure your spot</div>
     <div class="events-grid">
-      <div class="event-card">
-        <div class="event-banner"></div>
-        <div class="event-body">
-          <div class="event-tag">Webinar</div>
-          <h3>Ransomware Defence Strategies for African SMEs</h3>
-          <p>Understand how modern ransomware operates and implement proven defences without enterprise budgets.</p>
-          <div class="event-meta"><span>📅 15 July 2025</span><span>⏰ 10:00 WAT</span><span>👥 142 registered</span></div>
-          <button class="event-btn" onclick="registerEvent(this,'Ransomware Defence Webinar')">Register Free →</button>
-        </div>
-      </div>
-      <div class="event-card">
-        <div class="event-banner" style="background: linear-gradient(90deg, #0088FF, #00C9A7)"></div>
-        <div class="event-body">
-          <div class="event-tag" style="background:rgba(0,201,167,0.1);color:var(--accent);border-color:rgba(0,201,167,0.2)">Workshop</div>
-          <h3>Virtual Security Workshop: Phishing Simulation & Awareness</h3>
-          <p>Interactive 3-hour workshop where your team participates in a live phishing exercise and debrief.</p>
-          <div class="event-meta"><span>📅 22 July 2025</span><span>⏰ 09:00 CAT</span><span>👥 48 registered</span></div>
-          <button class="event-btn" onclick="registerEvent(this,'Phishing Workshop')">Register — R250 →</button>
-        </div>
-      </div>
-      <div class="event-card">
-        <div class="event-banner" style="background: linear-gradient(90deg, #FF6B35, #FF9500)"></div>
-        <div class="event-body">
-          <div class="event-tag" style="background:rgba(255,107,53,0.1);color:#FF6B35;border-color:rgba(255,107,53,0.2)">Live Event</div>
-          <h3>SADC Cybersecurity Summit 2025 — Virtual Track</h3>
-          <p>Join 800+ security professionals across Southern Africa for the region's premier cybersecurity event.</p>
-          <div class="event-meta"><span>📅 5 August 2025</span><span>⏰ 08:00 CAT</span><span>👥 312 registered</span></div>
-          <button class="event-btn" onclick="registerEvent(this,'SADC Summit')">Register →</button>
-        </div>
-      </div>
-      <div class="event-card">
-        <div class="event-banner" style="background: linear-gradient(90deg, #9B59B6, #0088FF)"></div>
-        <div class="event-body">
-          <div class="event-tag" style="background:rgba(155,89,182,0.1);color:#9B59B6;border-color:rgba(155,89,182,0.2)">Webinar</div>
-          <h3>AI in Cybersecurity: Opportunities & Threats for 2026</h3>
-          <p>How AI is being weaponised by attackers — and how defenders can harness it first. Includes Q&A.</p>
-          <div class="event-meta"><span>📅 19 August 2025</span><span>⏰ 14:00 CAT</span><span>👥 76 registered</span></div>
-          <button class="event-btn" onclick="registerEvent(this,'AI in Cybersecurity Webinar')">Register Free →</button>
-        </div>
-      </div>
+      <!-- Webinar cards are dynamically loaded from the API via app.js renderWebinars() -->
     </div>
 
     <div class="section-title" style="margin-bottom:8px">Security Resources</div>
     <div class="section-sub">Download our whitepapers, guides, and checklists — free for all registered clients</div>
     <div class="resources-grid">
       <div class="resource-card">
-        <div class="resource-icon">📄</div>
         <div class="resource-info">
           <h4>2025 SADC Cyber Threat Landscape Report</h4>
           <p>Comprehensive analysis of threat actors, attack vectors, and incident trends across Southern Africa.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: SADC Threat Report 2025.pdf')">⬇ Download PDF (2.4 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('SADC Threat Report 2025', 'Comprehensive analysis of threat actors, attack vectors, and incident trends across Southern Africa.\n\nThis report covers:\n- Regional threat landscape overview\n- Top attack vectors in SADC nations\n- Sector-specific risk analysis (Finance, Government, Telecom)\n- Incident response statistics and trends\n- Recommendations for regional cooperation\n- Emerging threats: AI-driven attacks and deepfakes\n- Case studies from Botswana, South Africa, Zimbabwe, and Namibia')">Download PDF</a>
         </div>
       </div>
       <div class="resource-card">
-        <div class="resource-icon">✅</div>
         <div class="resource-info">
           <h4>SME Security Hardening Checklist</h4>
           <p>Step-by-step 50-point checklist for small and medium enterprises to lock down their infrastructure.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: SME Security Checklist.pdf')">⬇ Download PDF (0.8 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('SME Security Hardening Checklist', 'Step-by-step 50-point checklist for small and medium enterprises.\n\nKey Areas Covered:\n- Network perimeter security\n- Endpoint protection and patching\n- Access control and authentication\n- Data backup and recovery\n- Email security and phishing prevention\n- Wi-Fi and remote access hardening\n- Employee security awareness\n- Incident response preparation\n- Vendor and third-party risk\n- Compliance and documentation')">Download PDF</a>
         </div>
       </div>
       <div class="resource-card">
-        <div class="resource-icon">🏛️</div>
         <div class="resource-info">
           <h4>Data Protection Compliance Guide (Botswana)</h4>
           <p>Practical guide to complying with Botswana's Data Protection Act for IT and legal teams.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: BW Data Protection Guide.pdf')">⬇ Download PDF (1.1 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('Data Protection Compliance Guide - Botswana', 'Practical guide to complying with Botswana Data Protection Act.\n\nContents:\n- Overview of the Data Protection Act\n- Key definitions and scope\n- Lawful basis for processing personal data\n- Data subject rights and obligations\n- Cross-border data transfers\n- Breach notification requirements\n- Penalties and enforcement\n- Implementation checklist for IT teams\n- Template privacy policy and consent forms\n- Frequently asked questions')">Download PDF</a>
         </div>
       </div>
       <div class="resource-card">
-        <div class="resource-icon">🎯</div>
         <div class="resource-info">
           <h4>Incident Response Playbook</h4>
           <p>A structured 6-step playbook your team can follow when a security incident occurs, with templates.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: IR Playbook 2025.pdf')">⬇ Download PDF (1.6 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('Incident Response Playbook 2025', 'A structured 6-step playbook for security incident response.\n\nThe 6 Phases:\n1. Preparation - team roles, tools, and communication plans\n2. Identification - detecting and confirming incidents\n3. Containment - short-term and long-term containment strategies\n4. Eradication - removing the root cause\n5. Recovery - restoring systems and validating integrity\n6. Lessons Learned - post-incident review and improvements\n\nIncludes:\n- Incident classification matrix\n- Escalation procedures\n- Communication templates\n- Evidence collection checklist')">Download PDF</a>
         </div>
       </div>
       <div class="resource-card">
-        <div class="resource-icon">🔒</div>
         <div class="resource-info">
           <h4>Ransomware Prevention & Recovery Guide</h4>
           <p>Before and after guide for defending against ransomware and recovering from an attack with minimal loss.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: Ransomware Guide.pdf')">⬇ Download PDF (1.9 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('Ransomware Prevention and Recovery Guide', 'Before and after guide for defending against ransomware.\n\nPrevention Measures:\n- Email filtering and anti-phishing\n- Patch management strategy\n- Network segmentation\n- Backup best practices (3-2-1 rule)\n- Endpoint detection and response\n\nRecovery Procedures:\n- Isolating infected systems\n- Assessing the scope of encryption\n- Restoring from clean backups\n- Engaging law enforcement\n- Stakeholder communication\n- Post-incident hardening steps')">Download PDF</a>
         </div>
       </div>
       <div class="resource-card">
-        <div class="resource-icon">👥</div>
         <div class="resource-info">
           <h4>Employee Cyber Awareness Training Deck</h4>
           <p>Ready-to-deliver 30-slide presentation for HR teams to conduct internal security awareness training.</p>
-          <a class="resource-dl" onclick="showToast('Downloading: Awareness Training.pptx')">⬇ Download PPTX (4.2 MB)</a>
+          <a class="resource-dl" onclick="downloadResourcePDF('Employee Cyber Awareness Training', 'Ready-to-deliver training material for internal security awareness.\n\nTopics Covered:\n- What is cybersecurity and why it matters\n- Phishing and social engineering attacks\n- Password hygiene and multi-factor authentication\n- Safe browsing and email practices\n- Handling sensitive data\n- Physical security awareness\n- Reporting suspicious activity\n- Mobile device security\n- Remote work security best practices\n- Quiz and assessment questions')">Download PDF</a>
         </div>
       </div>
     </div>
   </div>
-  <footer>© 2025 CyberNova Analytics Ltd</footer>
+  <footer>© 2026 CyberNova Analytics Ltd</footer>
 </div>
 
 <!-- CUSTOMER FEEDBACK FORM PAGE -->
@@ -677,7 +655,7 @@
     <div style="max-width:640px;width:100%;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden">
       <!-- Header -->
       <div style="background:#1a1a2e;padding:32px 40px;text-align:center">
-        <h1 style="margin:0;font-size:28px;font-weight:800;color:#00C9A7;font-family:'Syne',sans-serif">Cyber<span style="color:#fff">Nova</span></h1>
+        <h1 style="margin:0;font-size:28px;font-weight:800;color:#00D9FF;font-family:'Electrolize',sans-serif">Cyber<span style="color:#fff">Nova</span></h1>
         <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.5)">Cybersecurity Solutions</p>
       </div>
 
@@ -688,18 +666,18 @@
 
       <!-- Invalid/expired state -->
       <div id="feedbackInvalid" style="display:none;padding:60px 40px;text-align:center">
-        <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+        <div style="font-size:48px;margin-bottom:16px"></div>
         <h2 style="margin:0 0 8px;color:#111827;font-size:20px">Link Invalid or Expired</h2>
         <p style="color:#6b7280;font-size:14px">This feedback link is no longer valid. It may have already been used or has expired.</p>
-        <button onclick="showPage('home')" style="margin-top:24px;background:#00C9A7;color:#050A0E;padding:12px 28px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Return to CyberNova</button>
+        <button onclick="showPage('home')" style="margin-top:24px;background:#00D9FF;color:#050A0E;padding:12px 28px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'Electrolize',sans-serif">Return to CyberNova</button>
       </div>
 
       <!-- Success state -->
       <div id="feedbackSuccess" style="display:none;padding:60px 40px;text-align:center">
-        <div style="font-size:48px;margin-bottom:16px">🎉</div>
+        <div style="font-size:48px;margin-bottom:16px"></div>
         <h2 style="margin:0 0 8px;color:#111827;font-size:20px">Thank You for Your Feedback!</h2>
         <p style="color:#6b7280;font-size:14px">Your response has been recorded. We appreciate you taking the time to help us improve.</p>
-        <button onclick="showPage('home')" style="margin-top:24px;background:#00C9A7;color:#050A0E;padding:12px 28px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Return to CyberNova</button>
+        <button onclick="showPage('home')" style="margin-top:24px;background:#00D9FF;color:#050A0E;padding:12px 28px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'Electrolize',sans-serif">Return to CyberNova</button>
       </div>
 
       <!-- Feedback Form -->
@@ -736,13 +714,13 @@
         <!-- What did you like most? (Optional) -->
         <div style="margin-bottom:20px">
           <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">What did you like most? <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
-          <textarea id="fbLikedMost" rows="2" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;color:#111827" placeholder="Tell us what you enjoyed..."></textarea>
+          <textarea id="fbLikedMost" rows="2" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:#111827" placeholder="Tell us what you enjoyed..."></textarea>
         </div>
 
         <!-- What can we improve? (Optional) -->
         <div style="margin-bottom:20px">
           <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">What can we improve? <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
-          <textarea id="fbImprovements" rows="2" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;color:#111827" placeholder="Suggestions for improvement..."></textarea>
+          <textarea id="fbImprovements" rows="2" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:#111827" placeholder="Suggestions for improvement..."></textarea>
         </div>
 
         <!-- Recommendation Score (Optional) -->
@@ -767,7 +745,7 @@
         <!-- Additional Comments (Optional) -->
         <div style="margin-bottom:20px">
           <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">Additional Comments <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
-          <textarea id="fbComments" rows="3" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;resize:vertical;color:#111827" placeholder="Any other thoughts..."></textarea>
+          <textarea id="fbComments" rows="3" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:#111827" placeholder="Any other thoughts..."></textarea>
         </div>
 
         <!-- Name & Email (Optional) -->
@@ -784,7 +762,7 @@
 
         <div id="feedbackError" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
 
-        <button onclick="submitSatisfactionFeedback()" style="width:100%;background:#00C9A7;color:#050A0E;padding:14px;border-radius:8px;border:none;font-weight:700;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity 0.2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        <button onclick="submitSatisfactionFeedback()" style="width:100%;background:#00D9FF;color:#050A0E;padding:14px;border-radius:8px;border:none;font-weight:700;font-size:15px;cursor:pointer;font-family:'Electrolize',sans-serif;transition:opacity 0.2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
           Submit Feedback →
         </button>
       </div>
@@ -801,15 +779,15 @@
       <p>Sign in to access the analytics dashboard and service request management.</p>
       <div class="form-group" style="margin-bottom:16px">
         <label>Email Address</label>
-        <input type="email" id="lemail" placeholder="admin@example.com" value="admin@cybernova.co.bw">
+        <input type="email" id="lemail" placeholder="admin@cybernova.com" value="admin@cybernova.com">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" id="lpassword" placeholder="••••••••" value="admin123">
+        <input type="password" id="lpassword" placeholder="••••••••" value="Admin@123">
       </div>
       <button class="form-submit" style="margin-top:24px" onclick="doLogin()">Sign In →</button>
       <div class="err-msg" id="loginErr">Incorrect credentials. Please try again.</div>
-      <p class="login-hint">Demo: <code>admin@cybernova.co.bw</code> / <code>admin123</code></p>
+      <p class="login-hint">Demo: <code>admin@cybernova.com</code> / <code>Admin@123</code></p>
     </div>
   </div>
 </div>
@@ -949,20 +927,20 @@
             </div>
           </div>
 
+          <!-- Conversion Funnel -->
+          <div class="admin-charts-row" style="grid-template-columns:1fr">
+            <div class="admin-chart-card">
+              <h3>Conversion Funnel</h3>
+              <div id="convChart" style="padding:8px 0"></div>
+            </div>
+          </div>
+
           <div class="admin-charts-row">
             <!-- Recent Service Requests -->
             <div class="admin-card" style="margin-bottom:0">
               <div class="admin-card-header"><h3>Recent Service Requests</h3></div>
               <div id="overviewServiceTable">
-                <table class="admin-data-table">
-                  <thead><tr><th>ID</th><th>Client Name</th><th>Service</th><th>Date</th><th>Status</th></tr></thead>
-                  <tbody>
-                    <tr><td>#SR-245</td><td>Acme Corporation</td><td>Risk Assessment</td><td>20 May 2025</td><td><span class="admin-badge pending">Pending</span></td></tr>
-                    <tr><td>#SR-244</td><td>TechSolutions Ltd.</td><td>Penetration Testing</td><td>19 May 2025</td><td><span class="admin-badge in-progress">In Progress</span></td></tr>
-                    <tr><td>#SR-243</td><td>Global Industries</td><td>Security Audit</td><td>18 May 2025</td><td><span class="admin-badge reviewed">Reviewed</span></td></tr>
-                    <tr><td>#SR-242</td><td>DataSecure Inc.</td><td>Incident Response</td><td>17 May 2025</td><td><span class="admin-badge completed">Completed</span></td></tr>
-                  </tbody>
-                </table>
+                <!-- Populated dynamically with real data from API -->
               </div>
               <div style="padding:12px 20px; border-top:1px solid #e5e7eb">
                 <a class="admin-view-link" onclick="showAdminPage('admin-service-requests')">View All Service Requests →</a>
@@ -973,14 +951,7 @@
             <div class="admin-card" style="margin-bottom:0">
               <div class="admin-card-header"><h3>Upcoming Webinars</h3></div>
               <div id="overviewWebinarTable">
-                <table class="admin-data-table">
-                  <thead><tr><th>Webinar Title</th><th>Date & Time</th><th>Registrations</th></tr></thead>
-                  <tbody>
-                    <tr><td>Cyber Threats in 2025: What Businesses Must Know</td><td>28 May 2025, 10:00 AM</td><td>45</td></tr>
-                    <tr><td>Building a Strong Security Culture</td><td>10 Jun 2025, 02:00 PM</td><td>38</td></tr>
-                    <tr><td>Cloud Security Best Practices</td><td>24 Jun 2025, 11:00 AM</td><td>45</td></tr>
-                  </tbody>
-                </table>
+                <!-- Populated dynamically with real data from API -->
               </div>
               <div style="padding:12px 20px; border-top:1px solid #e5e7eb">
                 <a class="admin-view-link" onclick="showAdminPage('admin-webinar-regs')">View All Webinars →</a>
@@ -1002,11 +973,10 @@
               <label>Status</label>
               <select id="srStatusFilter">
                 <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="in_progress">In Progress</option>
+                <option value="submitted">Submitted</option>
                 <option value="reviewed">Reviewed</option>
+                <option value="in_progress">In Progress</option>
                 <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
               </select>
             </div>
             <div class="admin-filter-group">
@@ -1026,10 +996,13 @@
               <label>Date Range</label>
               <input type="text" id="srDateRange" placeholder="Select date range" style="min-width:160px">
             </div>
-            <button class="admin-filter-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-              Filters
-            </button>
+            <div class="admin-filter-group">
+              <label>Export</label>
+              <button class="admin-filter-btn" id="exportServiceCSV" onclick="exportServiceRequestsCSV()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+              </button>
+            </div>
           </div>
 
           <div class="admin-card">
@@ -1120,36 +1093,32 @@
               <input type="text" id="wrSearch" placeholder="Search by name or email...">
             </div>
             <div class="admin-filter-group">
-              <label>Registration Status</label>
-              <select id="wrStatusFilter">
-                <option value="">All Statuses</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="pending">Pending</option>
-                <option value="cancelled">Cancelled</option>
+              <label>Webinar Type</label>
+              <select id="wrTypeFilter">
+                <option value="">All Types</option>
+                <option value="Webinar">Webinar</option>
+                <option value="Workshop">Workshop</option>
+                <option value="Live Event">Live Event</option>
               </select>
             </div>
             <div class="admin-filter-group">
               <label>Date Registered</label>
-              <input type="text" id="wrDateRange" placeholder="01 May 2025 - 31 May 2025" style="min-width:200px">
+              <input type="date" id="wrDateFilter" style="min-width:160px">
             </div>
             <div class="admin-filter-group">
               <label>Export</label>
-              <button class="admin-filter-btn">
+              <button class="admin-filter-btn" id="exportWebinarCSV" onclick="exportWebinarRegistrationsCSV()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                 Export CSV
               </button>
             </div>
-            <button class="admin-filter-btn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-              Filters
-            </button>
           </div>
 
           <div class="admin-card">
             <div id="webinarRegistrationsTable">
               <table class="admin-data-table">
                 <thead>
-                  <tr><th>ID</th><th>Registrant Name</th><th>Email</th><th>Organization</th><th>Registration Date</th><th>Status</th><th>Actions</th></tr>
+                  <tr><th>ID</th><th>Registrant Name</th><th>Email</th><th>Webinar</th><th>Type</th><th>Registration Date</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>REG-095</td><td>Michael Lee</td><td>michael.lee@techsolutions.com</td><td>TechSolutions Ltd.</td><td>20 May 2025, 10:15 AM</td><td><span class="admin-badge confirmed">Confirmed</span></td><td><button class="admin-action-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></td></tr>
@@ -1284,59 +1253,17 @@
           <!-- Recent Activity Table -->
           <div class="admin-card" style="margin-top:24px">
             <div class="admin-card-header"><h3>Recent Activity</h3></div>
-            <table class="admin-data-table">
-              <thead><tr><th style="width:30px"></th><th>Activity</th><th>Details</th><th>Date &amp; Time</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td><svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></td>
-                  <td>New service request submitted</td>
-                  <td>Penetration Testing - Acme Corporation</td>
-                  <td>20 May 2025, 10:24 AM</td>
-                </tr>
-                <tr>
-                  <td><svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="width:16px;height:16px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></td>
-                  <td>New webinar registration</td>
-                  <td>Best Practices for Incident Response - Sarah Johnson</td>
-                  <td>20 May 2025, 09:48 AM</td>
-                </tr>
-                <tr>
-                  <td><svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="width:16px;height:16px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></td>
-                  <td>New satisfaction feedback</td>
-                  <td>Rating: 5/5 - Great service and support!</td>
-                  <td>20 May 2025, 08:15 AM</td>
-                </tr>
-                <tr>
-                  <td><svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="width:16px;height:16px"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></td>
-                  <td>New client registered</td>
-                  <td>DataSecure Inc.</td>
-                  <td>19 May 2025, 04:32 PM</td>
-                </tr>
-              </tbody>
-            </table>
+            <div id="analyticsActivityTable">
+              <div class="empty-state">Loading activity...</div>
+            </div>
           </div>
         </div>
 
         <!-- ==================== SATISFACTION PAGE ==================== -->
         <div id="admin-satisfaction" class="admin-sub-page">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
-            <div>
-              <h1 class="admin-page-title">Satisfaction</h1>
-              <p class="admin-page-sub">Monitor client feedback and satisfaction metrics.</p>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="admin-filter-group" style="display:flex;align-items:center;gap:6px">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="width:16px;height:16px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <select style="min-width:180px">
-                  <option>01 May 2025 - 31 May 2025</option>
-                  <option>Last 30 Days</option>
-                  <option>Last 90 Days</option>
-                </select>
-              </div>
-              <button class="admin-filter-btn" style="display:flex;align-items:center;gap:4px;padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;color:#374151;font-size:13px;cursor:pointer">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                Filter
-              </button>
-            </div>
+          <div style="margin-bottom:24px">
+            <h1 class="admin-page-title">Satisfaction</h1>
+            <p class="admin-page-sub">Monitor client feedback and satisfaction metrics.</p>
           </div>
 
           <!-- KPI Cards -->
@@ -1474,6 +1401,7 @@
             <div class="admin-filter-group" style="width:100%">
               <select id="exportDataType" style="width:100%;min-width:100%">
                 <option value="">Choose data type</option>
+                <option value="all">All Data</option>
                 <option value="service_requests">Service Requests</option>
                 <option value="webinar_registrations">Webinar Registrations</option>
                 <option value="clients">Clients</option>
@@ -1500,6 +1428,7 @@
             <div class="admin-filter-group" style="width:100%">
               <select id="exportFilter" style="width:100%;min-width:100%">
                 <option value="">Select filter (e.g., country, industry, status...)</option>
+                <option value="all">All (No Filter)</option>
                 <option value="country">Country</option>
                 <option value="industry">Industry</option>
                 <option value="status">Status</option>
@@ -1540,116 +1469,175 @@
           <p class="admin-page-sub">Manage platform settings and preferences.</p>
 
           <div class="settings-layout">
+            <!-- Sidebar: General + Notifications only -->
             <div class="settings-tabs">
-              <a class="active" onclick="showSettingsTab(this)">General <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-              <a onclick="showSettingsTab(this)">Users & Roles <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-              <a onclick="showSettingsTab(this)">Notifications <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-              <a onclick="showSettingsTab(this)">Security <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-              <a onclick="showSettingsTab(this)">Integrations <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
-              <a onclick="showSettingsTab(this)">Audit Logs <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a class="active" data-tab="general" onclick="showSettingsTab(this)">General <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
+              <a data-tab="notifications" onclick="showSettingsTab(this)">Notifications <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></a>
             </div>
+
             <div class="settings-content">
-              <div class="settings-section">
-                <h3>General Settings</h3>
-                <div class="settings-grid">
-                  <div class="settings-field">
-                    <label>Platform Name</label>
-                    <input type="text" value="CyberNova">
-                  </div>
-                  <div class="settings-field">
-                    <label>Company Email</label>
-                    <input type="email" value="contact@cybernova.com">
-                  </div>
-                  <div class="settings-field">
-                    <label>Company Phone</label>
-                    <input type="tel" value="+1 (555) 123-4567">
-                  </div>
-                  <div class="settings-field">
-                    <label>Timezone</label>
-                    <select>
-                      <option>(UTC+00:00) Coordinated Universal Time</option>
-                      <option>(UTC+02:00) Central Africa Time</option>
-                      <option selected>(UTC+02:00) South Africa Standard Time</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="settings-field" style="margin-bottom:16px">
-                  <label>Company Logo</label>
-                  <div style="display:flex;gap:16px;align-items:center;margin-top:8px">
-                    <div style="width:80px;height:80px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" style="width:32px;height:32px"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+
+              <!-- GENERAL PANEL -->
+              <div id="settingsPanel-general">
+                <div class="settings-section">
+                  <h3>General Settings</h3>
+                  <div class="settings-grid">
+                    <div class="settings-field">
+                      <label>Platform Name</label>
+                      <input type="text" id="gs-platformName" value="CyberNova">
                     </div>
-                    <div>
-                      <p style="font-size:12px;color:#6b7280;margin-bottom:8px">Current logo<br>Recommended size: 200x200px (PNG, JPG)</p>
-                      <button class="admin-filter-btn" style="font-size:12px;padding:6px 12px">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Change Logo
-                      </button>
+                    <div class="settings-field">
+                      <label>Company Email</label>
+                      <input type="email" id="gs-email" value="contact@cybernova.com">
+                    </div>
+                    <div class="settings-field">
+                      <label>Company Phone</label>
+                      <input type="tel" id="gs-phone" value="+267 71 000 000">
+                    </div>
+                    <div class="settings-field">
+                      <label>Timezone</label>
+                      <select id="gs-timezone">
+                        <option>(UTC+00:00) Coordinated Universal Time</option>
+                        <option>(UTC+02:00) Central Africa Time</option>
+                        <option selected>(UTC+02:00) South Africa Standard Time</option>
+                      </select>
                     </div>
                   </div>
+                  <div style="overflow:hidden"><button class="settings-save-btn" onclick="saveGeneralSettings()">Save Changes</button></div>
                 </div>
-                <div style="overflow:hidden"><button class="settings-save-btn" onclick="showToast('Settings saved!')">Save Changes</button></div>
+
+                <div class="settings-section">
+                  <h3>Date &amp; Time Format</h3>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+                    <div class="settings-field">
+                      <label>Date Format</label>
+                      <select id="gs-dateFormat">
+                        <option selected>DD MMM YYYY</option>
+                        <option>MM/DD/YYYY</option>
+                        <option>YYYY-MM-DD</option>
+                      </select>
+                    </div>
+                    <div class="settings-field">
+                      <label>Time Format</label>
+                      <select id="gs-timeFormat">
+                        <option selected>12-Hour</option>
+                        <option>24-Hour</option>
+                      </select>
+                    </div>
+                    <div class="settings-field">
+                      <label>Week Starts On</label>
+                      <select id="gs-weekStart">
+                        <option selected>Monday</option>
+                        <option>Sunday</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div style="overflow:hidden"><button class="settings-save-btn" onclick="saveDateSettings()">Save Changes</button></div>
+                </div>
+
+                <div class="settings-section">
+                  <h3>Items Per Page</h3>
+                  <div class="settings-toggle">
+                    <p style="font-size:13px;color:#111827;margin:0">Default number of items to display in tables.</p>
+                    <div style="display:flex;gap:12px;align-items:center">
+                      <select id="gs-itemsPerPage" style="background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;color:#111827;font-family:'Electrolize',sans-serif">
+                        <option>10</option>
+                        <option selected>25</option>
+                        <option>50</option>
+                        <option>100</option>
+                      </select>
+                      <button class="settings-save-btn" style="float:none" onclick="saveItemsPerPage()">Save</button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="settings-section">
-                <h3>Date & Time Format</h3>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
-                  <div class="settings-field">
-                    <label>Date Format</label>
-                    <select>
-                      <option selected>DD MMM YYYY (20 May 2025)</option>
-                      <option>MM/DD/YYYY</option>
-                      <option>YYYY-MM-DD</option>
-                    </select>
-                  </div>
-                  <div class="settings-field">
-                    <label>Time Format</label>
-                    <select>
-                      <option selected>12-Hour (02:30 PM)</option>
-                      <option>24-Hour (14:30)</option>
-                    </select>
-                  </div>
-                  <div class="settings-field">
-                    <label>Week Starts On</label>
-                    <select>
-                      <option selected>Monday</option>
-                      <option>Sunday</option>
-                    </select>
+              <!-- NOTIFICATIONS PANEL -->
+              <div id="settingsPanel-notifications" style="display:none">
+                <div class="settings-section">
+                  <h3>Notification Preferences</h3>
+                  <p style="font-size:13px;color:#111827;margin-bottom:20px">Choose which events trigger an in-dashboard notification alert.</p>
+
+                  <div style="display:flex;flex-direction:column;gap:0">
+                    <!-- Row helper rendered via inline style -->
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">New Service Request</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Alert when a client submits a new risk assessment request.</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-newRequest" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">New Webinar Registration</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Alert when someone registers for a webinar or event.</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-newWebinar" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">New Satisfaction Feedback</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Alert when a client submits a satisfaction rating.</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-newFeedback" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">Low Satisfaction Alert</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Urgent alert when a client rates 2 stars or below.</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-lowRating" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #e5e7eb">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">Service Request Status Change</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Alert when a request status is updated (e.g. In Progress, Completed).</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-statusChange" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+                      <div>
+                        <div style="font-size:14px;font-weight:600;color:#111827">Webinar Capacity Warning</div>
+                        <div style="font-size:12px;color:#374151;margin-top:2px">Alert when a webinar reaches 90% of its capacity.</div>
+                      </div>
+                      <label class="toggle-switch">
+                        <input type="checkbox" id="notif-capacityWarn" checked onchange="saveNotifSettings()">
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
                   </div>
                 </div>
-                <div style="overflow:hidden"><button class="settings-save-btn" onclick="showToast('Date format saved!')">Save Changes</button></div>
+
+                <div class="settings-section">
+                  <h3>Notification History</h3>
+                  <p style="font-size:13px;color:#111827;margin-bottom:16px">Recent system notifications from the past 7 days.</p>
+                  <div id="notifHistoryList">
+                    <p style="font-size:13px;color:#111827;text-align:center;padding:20px 0">Loading notifications...</p>
+                  </div>
+                </div>
               </div>
 
-              <div class="settings-section">
-                <h3>Items Per Page</h3>
-                <div style="display:flex;align-items:center;justify-content:space-between">
-                  <p style="font-size:13px;color:#6b7280;margin:0">Set the default number of items to display in tables.</p>
-                  <div style="display:flex;gap:12px;align-items:center">
-                    <select style="background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:13px;color:#374151;font-family:'DM Sans',sans-serif">
-                      <option>10 items</option>
-                      <option selected>25 items</option>
-                      <option>50 items</option>
-                      <option>100 items</option>
-                    </select>
-                    <button class="settings-save-btn" style="float:none" onclick="showToast('Saved!')">Save Changes</button>
-                  </div>
-                </div>
-              </div>
-
-              <div class="settings-section">
-                <h3>Maintenance Mode</h3>
-                <div class="settings-toggle">
-                  <p style="font-size:13px;color:#6b7280;margin:0">Enable maintenance mode to restrict access to the platform.</p>
-                  <div style="display:flex;align-items:center;gap:8px">
-                    <label class="toggle-switch">
-                      <input type="checkbox">
-                      <span class="toggle-slider"></span>
-                    </label>
-                    <span style="font-size:13px;color:#6b7280">Disabled</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            </div><!-- /settings-content -->
           </div>
         </div>
 
@@ -1657,7 +1645,7 @@
 
       <!-- Admin footer -->
       <div class="admin-footer">
-        <span>&copy; 2025 CyberNova. All rights reserved.</span>
+        <span>&copy; 2026 CyberNova. All rights reserved.</span>
         <div>
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Service</a>
@@ -1677,7 +1665,7 @@
       <button class="modal-close" onclick="closeWebinarModal()">×</button>
     </div>
     
-    <div id="webinarInfo" style="margin-bottom:20px; padding:12px; background:rgba(0,201,167,0.05); border-radius:8px; border:1px solid rgba(0,201,167,0.2);">
+    <div id="webinarInfo" style="margin-bottom:20px; padding:12px; background:rgba(0,217,255,0.05); border-radius:0; border:1px solid rgba(0,217,255,0.2);">
       <div id="webinarTitle" style="font-size:14px; font-weight:600; margin-bottom:4px;"></div>
       <div id="webinarDetails" style="font-size:12px; color:var(--muted);"></div>
     </div>
@@ -1748,6 +1736,104 @@
       
       <div id="webinarError" class="error-msg" style="display:none; margin-top:12px;"></div>
     </form>
+  </div>
+</div>
+
+<!-- SATISFACTION FEEDBACK POPUP MODAL -->
+<div id="satisfactionModal" class="modal-overlay" style="display:none">
+  <div class="modal-content" style="max-width:560px;padding:32px;background:#0C1419;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <h2 style="margin:0;font-size:20px;font-weight:700;color:var(--text);font-family:'Electrolize',sans-serif">Rate Your Experience</h2>
+        <p id="satisfactionContext" style="margin:4px 0 0;font-size:13px;color:var(--muted)">Thank you for using CyberNova!</p>
+      </div>
+      <button onclick="closeSatisfactionModal()" class="modal-close">&times;</button>
+    </div>
+
+    <!-- Star Rating (Required) — label changes based on type -->
+    <div style="margin-bottom:20px">
+      <label id="modalRatingLabel" style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">How easy was the form to fill out? *</label>
+      <div id="modalStarRating" style="display:flex;gap:10px;font-size:38px;cursor:pointer;color:#374151">
+        <span onclick="setModalStarRating(1)" data-star="1" style="transition:color 0.15s">★</span>
+        <span onclick="setModalStarRating(2)" data-star="2" style="transition:color 0.15s">★</span>
+        <span onclick="setModalStarRating(3)" data-star="3" style="transition:color 0.15s">★</span>
+        <span onclick="setModalStarRating(4)" data-star="4" style="transition:color 0.15s">★</span>
+        <span onclick="setModalStarRating(5)" data-star="5" style="transition:color 0.15s">★</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;max-width:220px"><span style="font-size:11px;color:var(--muted)">Very difficult</span><span style="font-size:11px;color:var(--muted)">Very easy</span></div>
+      <input type="hidden" id="modalRating" value="">
+    </div>
+
+    <!-- Overall Experience (Required) — label changes based on type -->
+    <div style="margin-bottom:20px">
+      <label id="modalExpLabel" style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">First impression of CyberNova? *</label>
+      <div id="modalExpStars" style="display:flex;gap:10px;font-size:38px;cursor:pointer;color:#374151">
+        <span onclick="setModalExpRating(1)" data-star="1" style="transition:color 0.15s">★</span>
+        <span onclick="setModalExpRating(2)" data-star="2" style="transition:color 0.15s">★</span>
+        <span onclick="setModalExpRating(3)" data-star="3" style="transition:color 0.15s">★</span>
+        <span onclick="setModalExpRating(4)" data-star="4" style="transition:color 0.15s">★</span>
+        <span onclick="setModalExpRating(5)" data-star="5" style="transition:color 0.15s">★</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;max-width:220px"><span style="font-size:11px;color:var(--muted)">Poor</span><span style="font-size:11px;color:var(--muted)">Excellent</span></div>
+      <input type="hidden" id="modalExpRatingVal" value="">
+    </div>
+
+    <!-- How did you hear about us? (service) / What did you like most? (webinar) -->
+    <div style="margin-bottom:16px">
+      <label id="modalLikedLabel" style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">How did you hear about us? <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+      <select id="modalLikedMost" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;color:var(--text);background:var(--bg);box-sizing:border-box">
+        <option value="">Select an option...</option>
+        <option value="Google / Search Engine">Google / Search Engine</option>
+        <option value="Social Media">Social Media</option>
+        <option value="Word of mouth / Referral">Word of mouth / Referral</option>
+        <option value="LinkedIn">LinkedIn</option>
+        <option value="Industry event or conference">Industry event or conference</option>
+        <option value="News article or blog">News article or blog</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Why CyberNova? (service) / What can we improve? (webinar) -->
+    <div style="margin-bottom:16px">
+      <label id="modalImprovementsLabel" style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">What made you choose CyberNova? <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+      <textarea id="modalImprovements" rows="2" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:var(--text);background:var(--bg);box-sizing:border-box" placeholder="e.g. Reputation, pricing, specific services..."></textarea>
+    </div>
+
+    <!-- NPS Score -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px">Would you recommend us? <span style="font-weight:400;opacity:0.6">(1-10, optional)</span></label>
+      <div id="modalNpsScore" style="display:flex;gap:5px;flex-wrap:wrap">
+        <span onclick="setModalNPS(1)" class="nps-btn">1</span>
+        <span onclick="setModalNPS(2)" class="nps-btn">2</span>
+        <span onclick="setModalNPS(3)" class="nps-btn">3</span>
+        <span onclick="setModalNPS(4)" class="nps-btn">4</span>
+        <span onclick="setModalNPS(5)" class="nps-btn">5</span>
+        <span onclick="setModalNPS(6)" class="nps-btn">6</span>
+        <span onclick="setModalNPS(7)" class="nps-btn">7</span>
+        <span onclick="setModalNPS(8)" class="nps-btn">8</span>
+        <span onclick="setModalNPS(9)" class="nps-btn">9</span>
+        <span onclick="setModalNPS(10)" class="nps-btn">10</span>
+      </div>
+      <input type="hidden" id="modalNPS" value="">
+    </div>
+
+    <!-- Additional Comments -->
+    <div style="margin-bottom:20px">
+      <label style="display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px">Additional Comments <span style="font-weight:400;opacity:0.6">(optional)</span></label>
+      <textarea id="modalComments" rows="2" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'Electrolize',sans-serif;resize:vertical;color:var(--text);background:var(--bg);box-sizing:border-box" placeholder="Any other thoughts..."></textarea>
+    </div>
+
+    <div id="modalFeedbackError" style="display:none;background:rgba(220,38,38,0.1);border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:10px 16px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+
+    <div style="display:flex;gap:12px">
+      <button onclick="closeSatisfactionModal()" style="flex:1;background:var(--border);color:var(--muted);padding:13px;border-radius:8px;border:none;font-weight:600;font-size:14px;cursor:pointer;font-family:'Electrolize',sans-serif;transition:opacity 0.2s" onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+        Skip for Now
+      </button>
+      <button onclick="submitModalFeedback()" style="flex:2;background:var(--accent);color:#050A0E;padding:13px;border-radius:8px;border:none;font-weight:700;font-size:14px;cursor:pointer;font-family:'Electrolize',sans-serif;transition:opacity 0.2s" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        Submit Feedback →
+      </button>
+    </div>
   </div>
 </div>
 

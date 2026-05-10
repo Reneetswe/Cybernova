@@ -3,6 +3,7 @@ from app.models.service_request import ServiceRequest, ServiceRequestService
 from app.models.webinar import Webinar, WebinarRegistration
 from app.models.customer_feedback import CustomerFeedback
 from app.models.satisfaction_feedback import SatisfactionFeedback, FeedbackToken
+from app.models.activity_log import ActivityLog
 
 __all__ = [
     "AdminUser",
@@ -12,5 +13,6 @@ __all__ = [
     "WebinarRegistration",
     "CustomerFeedback",
     "SatisfactionFeedback",
-    "FeedbackToken"
+    "FeedbackToken",
+    "ActivityLog"
 ]

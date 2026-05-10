@@ -5,6 +5,7 @@ from app.core.security import get_current_admin
 from app.models.admin_user import AdminUser
 from app.models.satisfaction_feedback import SatisfactionFeedback
 from app.services.feedback_service import FeedbackService
+from app.services.activity_service import log_activity
 from app.schemas.satisfaction_feedback import (
     FeedbackTokenInfo,
     SatisfactionFeedbackSubmit,
@@ -58,6 +59,21 @@ def submit_feedback(data: SatisfactionFeedbackSubmit, db: Session = Depends(get_
             respondent_name=data.respondent_name,
             respondent_email=data.respondent_email,
         )
+
+        # Log activity
+        feedback_detail = f"Rating: {data.rating}/5"
+        if data.comments:
+            feedback_detail += f" - {data.comments[:80]}"
+        log_activity(
+            db=db,
+            activity_type="feedback",
+            title="New satisfaction feedback submitted",
+            details=feedback_detail,
+            actor_name=data.respondent_name,
+            actor_email=data.respondent_email,
+            reference_id=feedback.id,
+        )
+
         return feedback
     except ValueError as e:
         raise HTTPException(
@@ -100,6 +116,8 @@ def get_all_feedback(
             rating=f.rating,
             experience_rating=f.experience_rating,
             recommendation_score=f.recommendation_score,
+            liked_most=f.liked_most,
+            improvements=f.improvements,
             comments=f.comments,
             submitted_at=f.submitted_at,
         ) for f in results

@@ -41,6 +41,8 @@ class WebinarRegistrationResponse(BaseModel):
     industry_sector: Optional[str]
     registered_at: datetime
     webinar_title: str
+    webinar_type: Optional[str] = None
+    feedback_url: Optional[str] = None
     
     class Config:
         from_attributes = True

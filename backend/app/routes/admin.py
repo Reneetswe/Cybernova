@@ -20,8 +20,11 @@ from app.schemas.dashboard import (
     CustomerSatisfactionMetrics
 )
 from app.schemas.customer_feedback import CustomerFeedbackCreate, CustomerFeedbackResponse
+from app.schemas.activity_log import ActivityLogResponse
 from app.services.dashboard_service import DashboardService
 from app.services.feedback_service import FeedbackService
+from app.services.activity_service import log_activity
+from app.models.activity_log import ActivityLog
 
 router = APIRouter()
 
@@ -151,7 +154,7 @@ def update_service_request_status(
         )
     
     # Validate status
-    valid_statuses = ["new_inquiry", "qualified", "proposal_sent", "negotiation", "confirmed_contract", "cancelled"]
+    valid_statuses = ["submitted", "reviewed", "in_progress", "completed"]
     if status_update.status not in valid_statuses:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -160,15 +163,25 @@ def update_service_request_status(
     
     req.status = status_update.status
     
-    # Set contract_confirmed_at if status is confirmed_contract
-    if status_update.status == "confirmed_contract" and not req.contract_confirmed_at:
+    # Set contract_confirmed_at if status is completed
+    if status_update.status == "completed" and not req.contract_confirmed_at:
         req.contract_confirmed_at = datetime.utcnow()
     
     db.commit()
     db.refresh(req)
+
+    # Log status change activity
+    log_activity(
+        db=db,
+        activity_type="status_update",
+        title=f"Service request status updated to {status_update.status.replace('_', ' ')}",
+        details=f"{req.full_name} - {req.organization_name}",
+        actor_name=current_admin.email,
+        reference_id=req.id,
+    )
     
     # Auto-trigger feedback email when service is completed
-    if status_update.status == "confirmed_contract":
+    if status_update.status == "completed":
         try:
             service_names = ", ".join([s.service_name for s in req.services]) or "Cybersecurity Service"
             FeedbackService.create_feedback_token(
@@ -222,7 +235,8 @@ def get_all_webinar_registrations(
             country=reg.country,
             industry_sector=reg.industry_sector,
             registered_at=reg.registered_at,
-            webinar_title=reg.webinar.title
+            webinar_title=reg.webinar.title,
+            webinar_type=reg.webinar.event_type
         ))
     
     return response
@@ -253,3 +267,17 @@ def create_customer_feedback(
     db.refresh(db_feedback)
     
     return db_feedback
+
+# Activity Log
+@router.get("/activity-log", response_model=List[ActivityLogResponse])
+def get_activity_log(
+    skip: int = 0,
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin)
+):
+    """Get recent activity log entries"""
+    activities = db.query(ActivityLog).order_by(
+        ActivityLog.created_at.desc()
+    ).offset(skip).limit(limit).all()
+    return activities

@@ -8,6 +8,8 @@ from app.models.webinar import Webinar, WebinarRegistration
 from app.schemas.service_request import ServiceRequestCreate, ServiceRequestResponse
 from app.schemas.webinar import WebinarResponse, WebinarRegistrationCreate, WebinarRegistrationResponse
 from app.services.feedback_service import FeedbackService
+from app.services.activity_service import log_activity
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -24,7 +26,7 @@ def create_service_request(request: ServiceRequestCreate, db: Session = Depends(
             country=request.country,
             industry_sector=request.industry_sector,
             additional_notes=request.additional_notes,
-            status="new_inquiry"
+            status="submitted"
         )
         db.add(db_request)
         db.flush()  # Get the ID without committing
@@ -39,7 +41,38 @@ def create_service_request(request: ServiceRequestCreate, db: Session = Depends(
         
         db.commit()
         db.refresh(db_request)
-        
+
+        # Log activity
+        service_list = ", ".join(request.services) if request.services else "General"
+        log_activity(
+            db=db,
+            activity_type="service_request",
+            title="New service request submitted",
+            details=f"{service_list} - {request.organization_name}",
+            actor_name=request.full_name,
+            actor_email=request.email,
+            reference_id=db_request.id,
+        )
+
+        # Generate satisfaction feedback token
+        feedback_url = None
+        try:
+            service_label = ", ".join(request.services) if request.services else "CyberNova Service"
+            token_obj = FeedbackService.create_feedback_token(
+                db=db,
+                email=db_request.email,
+                full_name=db_request.full_name,
+                feedback_type="service",
+                request_id=db_request.id,
+                service_name=service_label,
+            )
+            frontend_url = settings.FRONTEND_URL.rstrip("/")
+            feedback_url = f"{frontend_url}/index.html?feedback={token_obj.token}"
+        except Exception as fe:
+            import traceback
+            print(f"Warning: Could not generate feedback token: {fe}")
+            traceback.print_exc()
+
         # Build response with services
         response_data = ServiceRequestResponse(
             id=db_request.id,
@@ -54,11 +87,12 @@ def create_service_request(request: ServiceRequestCreate, db: Session = Depends(
             services=[s.service_name for s in db_request.services],
             created_at=db_request.created_at,
             updated_at=db_request.updated_at,
-            contract_confirmed_at=db_request.contract_confirmed_at
+            contract_confirmed_at=db_request.contract_confirmed_at,
+            feedback_url=feedback_url,
         )
-        
+
         return response_data
-        
+
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -126,6 +160,35 @@ def create_webinar_registration(registration: WebinarRegistrationCreate, db: Ses
         db.commit()
         db.refresh(db_registration)
         
+        # Log activity
+        log_activity(
+            db=db,
+            activity_type="webinar_registration",
+            title="New webinar registration",
+            details=f"{webinar.title} - {registration.full_name}",
+            actor_name=registration.full_name,
+            actor_email=registration.email,
+            reference_id=db_registration.id,
+        )
+
+        # Generate feedback token
+        feedback_url = None
+        try:
+            token_obj = FeedbackService.create_feedback_token(
+                db=db,
+                email=registration.email,
+                full_name=registration.full_name,
+                feedback_type="webinar",
+                webinar_id=webinar.id,
+                webinar_title=webinar.title,
+            )
+            frontend_url = settings.FRONTEND_URL.rstrip("/")
+            feedback_url = f"{frontend_url}/index.html?feedback={token_obj.token}"
+        except Exception as e:
+            import traceback
+            print(f"Warning: Failed to generate feedback token: {e}")
+            traceback.print_exc()
+        
         # Build response
         response_data = WebinarRegistrationResponse(
             id=db_registration.id,
@@ -137,22 +200,9 @@ def create_webinar_registration(registration: WebinarRegistrationCreate, db: Ses
             country=db_registration.country,
             industry_sector=db_registration.industry_sector,
             registered_at=db_registration.registered_at,
-            webinar_title=webinar.title
+            webinar_title=webinar.title,
+            feedback_url=feedback_url
         )
-        
-        # Send feedback request email for the webinar
-        try:
-            FeedbackService.create_feedback_token(
-                db=db,
-                email=registration.email,
-                full_name=registration.full_name,
-                feedback_type="webinar",
-                webinar_id=webinar.id,
-                webinar_title=webinar.title,
-            )
-        except Exception as e:
-            # Don't fail registration if email fails
-            print(f"Warning: Failed to send feedback email: {e}")
         
         return response_data
         

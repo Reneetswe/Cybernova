@@ -31,7 +31,9 @@ class ConversionFunnelStage(BaseModel):
     percentage: float
 
 class ConversionFunnel(BaseModel):
+    total_requests: int
     stages: List[ConversionFunnelStage]
+    conversion_rate: float
 
 class RatingDistribution(BaseModel):
     stars: int

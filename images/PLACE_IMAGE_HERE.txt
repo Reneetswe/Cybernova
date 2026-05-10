@@ -1,0 +1,11 @@
+IMPORTANT: Save the cyber lock background image here!
+
+File name: cyber-lock-bg.jpg
+
+This should be the blue cybersecurity padlock image with:
+- Glowing blue lock in the center
+- Circuit board patterns
+- Dark blue gradient background
+- Cyan/electric blue glow effects
+
+Save the image you provided as "cyber-lock-bg.jpg" in this folder.

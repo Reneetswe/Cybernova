@@ -92,6 +92,8 @@ class FeedbackListItem(BaseModel):
     rating: int
     experience_rating: Optional[int]
     recommendation_score: Optional[int]
+    liked_most: Optional[str]
+    improvements: Optional[str]
     comments: Optional[str]
     submitted_at: datetime
 

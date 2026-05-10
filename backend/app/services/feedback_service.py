@@ -243,6 +243,8 @@ class FeedbackService:
                 rating=f.rating,
                 experience_rating=f.experience_rating,
                 recommendation_score=f.recommendation_score,
+                liked_most=f.liked_most,
+                improvements=f.improvements,
                 comments=f.comments,
                 submitted_at=f.submitted_at,
             ) for f in recent

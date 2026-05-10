@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database import engine, Base
+from app.models import *  # noqa: ensure all models are registered with Base
 from app.routes import public, auth, admin, feedback
 
 # Create database tables
