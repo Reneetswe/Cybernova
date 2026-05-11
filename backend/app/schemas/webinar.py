@@ -46,3 +46,27 @@ class WebinarRegistrationResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class WebinarCreate(BaseModel):
+    title: str
+    description: str
+    event_type: str
+    event_date: str
+    event_time: str
+    timezone: str
+    price: Optional[Decimal] = None
+    capacity: Optional[int] = None
+    banner_gradient: Optional[str] = None
+    tag_color: Optional[str] = None
+
+class WebinarUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[str] = None
+    event_date: Optional[str] = None
+    event_time: Optional[str] = None
+    timezone: Optional[str] = None
+    price: Optional[Decimal] = None
+    capacity: Optional[int] = None
+    banner_gradient: Optional[str] = None
+    tag_color: Optional[str] = None

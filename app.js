@@ -93,6 +93,8 @@ function showAdminPage(pageId) {
     loadActivityLog();
   } else if (pageId === 'admin-satisfaction') {
     loadSatisfactionData();
+  } else if (pageId === 'admin-webinars') {
+    loadAdminWebinars();
   }
 }
 
@@ -1383,6 +1385,192 @@ function renderActivityLog(activities) {
       <tbody>${rows}</tbody>
     </table>
   `;
+}
+
+// ============================================
+// WEBINAR MANAGEMENT (ADMIN)
+// ============================================
+
+async function loadAdminWebinars() {
+  try {
+    const webinars = await fetch('http://localhost:8000/api/webinars').then(r => r.json());
+    renderAdminWebinarsTable(webinars);
+  } catch (error) {
+    console.error('Error loading admin webinars:', error);
+    const tbody = document.getElementById('webinarsTableBody');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#ef4444">Failed to load webinars</td></tr>';
+  }
+}
+
+function renderAdminWebinarsTable(webinars) {
+  const tbody = document.getElementById('webinarsTableBody');
+  if (!tbody) return;
+
+  if (!webinars.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:#6b7280">No webinars yet. Click "Create New Webinar" to add one.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = webinars.map(w => {
+    const priceDisplay = w.price && w.price > 0 ? `P ${w.price}` : 'Free';
+    const capacityDisplay = w.capacity || 'Unlimited';
+    return `<tr>
+      <td>${w.id}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.title}</td>
+      <td><span class="admin-badge" style="background:#eff6ff;color:#0088FF">${w.event_type}</span></td>
+      <td>${w.event_date}</td>
+      <td>${w.event_time}</td>
+      <td>${priceDisplay}</td>
+      <td>${capacityDisplay}</td>
+      <td>${w.registration_count}</td>
+      <td>
+        <button class="admin-action-btn" onclick="editWebinar(${w.id})" title="Edit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="admin-action-btn" onclick="deleteWebinar(${w.id}, '${w.title.replace(/'/g, "\\'")}', ${w.registration_count})" title="Delete" style="color:#ef4444">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openWebinarModal(webinarId = null) {
+  const modal = document.getElementById('adminWebinarModal');
+  const form = document.getElementById('adminWebinarForm');
+  const title = document.getElementById('webinarModalTitle');
+  
+  if (!modal || !form) return;
+  
+  form.reset();
+  document.getElementById('wbId').value = '';
+  
+  // Set minimum date to today to prevent past dates
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('wbDate').setAttribute('min', today);
+  
+  if (webinarId) {
+    // Edit mode - fetch webinar data
+    title.textContent = 'Edit Webinar';
+    fetch(`http://localhost:8000/api/webinars`)
+      .then(r => r.json())
+      .then(webinars => {
+        const webinar = webinars.find(w => w.id === webinarId);
+        if (webinar) {
+          document.getElementById('wbId').value = webinar.id;
+          document.getElementById('wbTitle').value = webinar.title;
+          document.getElementById('wbType').value = webinar.event_type;
+          document.getElementById('wbDescription').value = webinar.description;
+          document.getElementById('wbDate').value = webinar.event_date;
+          document.getElementById('wbTime').value = webinar.event_time;
+          document.getElementById('wbTimezone').value = webinar.timezone;
+          document.getElementById('wbPrice').value = webinar.price || 0;
+          document.getElementById('wbCapacity').value = webinar.capacity || '';
+          document.getElementById('wbGradient').value = webinar.banner_gradient || '';
+          document.getElementById('wbTagColor').value = webinar.tag_color || '';
+        }
+      });
+  } else {
+    // Create mode
+    title.textContent = 'Create New Webinar';
+  }
+  
+  modal.style.display = 'flex';
+}
+
+function closeAdminWebinarModal() {
+  const modal = document.getElementById('adminWebinarModal');
+  if (modal) modal.style.display = 'none';
+}
+
+async function saveWebinar(event) {
+  event.preventDefault();
+  
+  const webinarId = document.getElementById('wbId').value;
+  const data = {
+    title: document.getElementById('wbTitle').value,
+    description: document.getElementById('wbDescription').value,
+    event_type: document.getElementById('wbType').value,
+    event_date: document.getElementById('wbDate').value,
+    event_time: document.getElementById('wbTime').value,
+    timezone: document.getElementById('wbTimezone').value,
+    price: parseFloat(document.getElementById('wbPrice').value) || null,
+    capacity: parseInt(document.getElementById('wbCapacity').value) || null,
+    banner_gradient: document.getElementById('wbGradient').value || null,
+    tag_color: document.getElementById('wbTagColor').value || null
+  };
+  
+  try {
+    const token = localStorage.getItem('authToken');
+    const url = webinarId 
+      ? `http://localhost:8000/api/admin/webinars/${webinarId}`
+      : 'http://localhost:8000/api/admin/webinars';
+    const method = webinarId ? 'PUT' : 'POST';
+    
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to save webinar');
+    }
+    
+    showToast(webinarId ? 'Webinar updated successfully' : 'Webinar created successfully');
+    closeAdminWebinarModal();
+    await loadAdminWebinars();
+    
+    // Reload webinars on events page if it's visible
+    if (document.getElementById('events').classList.contains('active')) {
+      await loadWebinars();
+    }
+  } catch (error) {
+    console.error('Error saving webinar:', error);
+    showToast(error.message || 'Failed to save webinar', 'error');
+  }
+}
+
+async function editWebinar(webinarId) {
+  openWebinarModal(webinarId);
+}
+
+async function deleteWebinar(webinarId, title, registrationCount) {
+  const confirmMsg = registrationCount > 0
+    ? `Delete "${title}"?\n\nWarning: This webinar has ${registrationCount} registration(s). All registrations will be permanently deleted.`
+    : `Delete "${title}"?`;
+  
+  if (!confirm(confirmMsg)) return;
+  
+  try {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(`http://localhost:8000/api/admin/webinars/${webinarId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || 'Failed to delete webinar');
+    }
+    
+    showToast('Webinar deleted successfully');
+    await loadAdminWebinars();
+    
+    // Reload webinars on events page if it's visible
+    if (document.getElementById('events').classList.contains('active')) {
+      await loadWebinars();
+    }
+  } catch (error) {
+    console.error('Error deleting webinar:', error);
+    showToast(error.message || 'Failed to delete webinar', 'error');
+  }
 }
 
 async function loadCustomerSatisfaction() {

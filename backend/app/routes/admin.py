@@ -7,10 +7,10 @@ from app.database import get_db
 from app.core.security import get_current_admin
 from app.models.admin_user import AdminUser
 from app.models.service_request import ServiceRequest, ServiceRequestService
-from app.models.webinar import WebinarRegistration
+from app.models.webinar import Webinar, WebinarRegistration
 from app.models.customer_feedback import CustomerFeedback
 from app.schemas.service_request import ServiceRequestResponse, ServiceRequestStatusUpdate
-from app.schemas.webinar import WebinarRegistrationResponse
+from app.schemas.webinar import WebinarResponse, WebinarRegistrationResponse, WebinarCreate, WebinarUpdate
 from app.schemas.dashboard import (
     DashboardSummary,
     MonthlyServiceRequest,
@@ -281,3 +281,133 @@ def get_activity_log(
         ActivityLog.created_at.desc()
     ).offset(skip).limit(limit).all()
     return activities
+
+# Webinar Management (Admin CRUD)
+@router.post("/webinars", response_model=WebinarResponse, status_code=status.HTTP_201_CREATED)
+def create_webinar(
+    webinar: WebinarCreate,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin)
+):
+    """Create a new webinar (admin only)"""
+    db_webinar = Webinar(
+        title=webinar.title,
+        description=webinar.description,
+        event_type=webinar.event_type,
+        event_date=webinar.event_date,
+        event_time=webinar.event_time,
+        timezone=webinar.timezone,
+        price=webinar.price,
+        capacity=webinar.capacity,
+        banner_gradient=webinar.banner_gradient,
+        tag_color=webinar.tag_color
+    )
+    db.add(db_webinar)
+    db.commit()
+    db.refresh(db_webinar)
+    
+    log_activity(
+        db=db,
+        activity_type="webinar_created",
+        title="New webinar created",
+        details=f"{webinar.title} - {webinar.event_date}",
+        actor_name=current_admin.email,
+        reference_id=db_webinar.id,
+    )
+    
+    return WebinarResponse(
+        id=db_webinar.id,
+        title=db_webinar.title,
+        description=db_webinar.description,
+        event_type=db_webinar.event_type,
+        event_date=db_webinar.event_date,
+        event_time=db_webinar.event_time,
+        timezone=db_webinar.timezone,
+        price=db_webinar.price,
+        capacity=db_webinar.capacity,
+        banner_gradient=db_webinar.banner_gradient,
+        tag_color=db_webinar.tag_color,
+        registration_count=0,
+        created_at=db_webinar.created_at
+    )
+
+@router.put("/webinars/{webinar_id}", response_model=WebinarResponse)
+def update_webinar(
+    webinar_id: int,
+    webinar: WebinarUpdate,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin)
+):
+    """Update an existing webinar (admin only)"""
+    db_webinar = db.query(Webinar).filter(Webinar.id == webinar_id).first()
+    if not db_webinar:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Webinar not found"
+        )
+    
+    # Update only provided fields
+    update_data = webinar.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_webinar, field, value)
+    
+    db.commit()
+    db.refresh(db_webinar)
+    
+    log_activity(
+        db=db,
+        activity_type="webinar_updated",
+        title="Webinar updated",
+        details=f"{db_webinar.title}",
+        actor_name=current_admin.email,
+        reference_id=db_webinar.id,
+    )
+    
+    return WebinarResponse(
+        id=db_webinar.id,
+        title=db_webinar.title,
+        description=db_webinar.description,
+        event_type=db_webinar.event_type,
+        event_date=db_webinar.event_date,
+        event_time=db_webinar.event_time,
+        timezone=db_webinar.timezone,
+        price=db_webinar.price,
+        capacity=db_webinar.capacity,
+        banner_gradient=db_webinar.banner_gradient,
+        tag_color=db_webinar.tag_color,
+        registration_count=len(db_webinar.registrations),
+        created_at=db_webinar.created_at
+    )
+
+@router.delete("/webinars/{webinar_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_webinar(
+    webinar_id: int,
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(get_current_admin)
+):
+    """Delete a webinar (admin only)"""
+    db_webinar = db.query(Webinar).filter(Webinar.id == webinar_id).first()
+    if not db_webinar:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Webinar not found"
+        )
+    
+    webinar_title = db_webinar.title
+    
+    # Delete associated registrations first (cascade should handle this, but being explicit)
+    db.query(WebinarRegistration).filter(WebinarRegistration.webinar_id == webinar_id).delete()
+    
+    db.delete(db_webinar)
+    db.commit()
+    
+    log_activity(
+        db=db,
+        activity_type="webinar_deleted",
+        title="Webinar deleted",
+        details=f"{webinar_title}",
+        actor_name=current_admin.email,
+        reference_id=webinar_id,
+    )
+    
+    return None
