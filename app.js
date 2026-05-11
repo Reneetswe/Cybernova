@@ -1393,7 +1393,7 @@ function renderActivityLog(activities) {
 
 async function loadAdminWebinars() {
   try {
-    const webinars = await fetch('http://localhost:8000/api/webinars').then(r => r.json());
+    const webinars = await apiCall('/webinars');
     renderAdminWebinarsTable(webinars);
   } catch (error) {
     console.error('Error loading admin webinars:', error);
@@ -1452,8 +1452,7 @@ function openWebinarModal(webinarId = null) {
   if (webinarId) {
     // Edit mode - fetch webinar data
     title.textContent = 'Edit Webinar';
-    fetch(`http://localhost:8000/api/webinars`)
-      .then(r => r.json())
+    apiCall('/webinars')
       .then(webinars => {
         const webinar = webinars.find(w => w.id === webinarId);
         if (webinar) {
@@ -1501,25 +1500,17 @@ async function saveWebinar(event) {
   };
   
   try {
-    const token = localStorage.getItem('authToken');
     const url = webinarId 
-      ? `http://localhost:8000/api/admin/webinars/${webinarId}`
-      : 'http://localhost:8000/api/admin/webinars';
+      ? `/admin/webinars/${webinarId}`
+      : '/admin/webinars';
     const method = webinarId ? 'PUT' : 'POST';
     
-    const response = await fetch(url, {
+    const response = await apiCall(url, {
       method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
       body: JSON.stringify(data)
     });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.detail || 'Failed to save webinar');
-    }
+    // apiCall already parsed JSON and threw on error, so treat response as success data
+    const result = response;
     
     showToast(webinarId ? 'Webinar updated successfully' : 'Webinar created successfully');
     closeAdminWebinarModal();
@@ -1548,7 +1539,7 @@ async function deleteWebinar(webinarId, title, registrationCount) {
   
   try {
     const token = localStorage.getItem('authToken');
-    const response = await fetch(`http://localhost:8000/api/admin/webinars/${webinarId}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/webinars/${webinarId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -1556,7 +1547,7 @@ async function deleteWebinar(webinarId, title, registrationCount) {
     });
     
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete webinar' }));
       throw new Error(error.detail || 'Failed to delete webinar');
     }
     
