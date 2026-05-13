@@ -20,6 +20,28 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
 }
 
+function showFieldError(inputId, message) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.classList.add('field-error-border');
+  // Remove any existing error for this field
+  const existing = input.parentElement.querySelector('.field-error');
+  if (existing) existing.remove();
+  const errDiv = document.createElement('div');
+  errDiv.className = 'field-error';
+  errDiv.textContent = message;
+  input.parentElement.appendChild(errDiv);
+  input.focus();
+  input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearFieldErrors(containerSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+  container.querySelectorAll('.field-error').forEach(e => e.remove());
+  container.querySelectorAll('.field-error-border').forEach(e => e.classList.remove('field-error-border'));
+}
+
 // ============================================
 // API HELPER FUNCTIONS
 // ============================================
@@ -670,14 +692,16 @@ async function submitSatisfactionFeedback() {
   const fbNameVal = document.getElementById('fbName').value;
   const fbEmailVal = document.getElementById('fbEmail').value;
 
+  // Clear previous inline errors for feedback form
+  clearFieldErrors('#feedbackForm');
+
+  // Validate optional name/email fields with inline errors
   if (fbNameVal && !isValidName(fbNameVal)) {
-    errEl.textContent = 'Name must contain only letters (no numbers or special characters).';
-    errEl.style.display = 'block';
+    showFieldError('fbName', 'Name must contain only letters (no numbers or special characters).');
     return;
   }
   if (fbEmailVal && !isValidEmail(fbEmailVal)) {
-    errEl.textContent = 'Please enter a valid email address (e.g. you@gmail.com).';
-    errEl.style.display = 'block';
+    showFieldError('fbEmail', 'Enter a valid email (e.g. you@gmail.com).');
     return;
   }
 
@@ -928,26 +952,38 @@ async function submitForm() {
   const serviceCheckboxes = document.querySelectorAll('.service-checkboxes input[type=checkbox]:checked');
   const services = Array.from(serviceCheckboxes).map(cb => cb.value);
   
-  // Validation
-  if (!name || !email || !org || !country || !industry) {
-    showToast('Please fill in all required fields.', 'error');
-    return;
+  // Clear previous inline errors
+  clearFieldErrors('#request');
+
+  // Validation — show inline errors on the specific field
+  let hasError = false;
+
+  if (!name) {
+    showFieldError('fname', 'Full Name is required.');
+    hasError = true;
+  } else if (!isValidName(name)) {
+    showFieldError('fname', 'Name must contain only letters — no numbers or special characters.');
+    hasError = true;
   }
 
-  if (!isValidName(name)) {
-    showToast('Full Name must contain only letters (no numbers or special characters).', 'error');
-    return;
+  if (!email) {
+    showFieldError('femail', 'Email address is required.');
+    hasError = true;
+  } else if (!isValidEmail(email)) {
+    showFieldError('femail', 'Enter a valid email (e.g. you@gmail.com).');
+    hasError = true;
   }
 
-  if (!isValidEmail(email)) {
-    showToast('Please enter a valid email address (e.g. you@gmail.com).', 'error');
-    return;
-  }
-  
+  if (!org) { showFieldError('forg', 'Organization is required.'); hasError = true; }
+  if (!country) { showFieldError('fcountry', 'Country is required.'); hasError = true; }
+  if (!industry) { showFieldError('findustry', 'Industry sector is required.'); hasError = true; }
+
   if (services.length === 0) {
     showToast('Please select at least one service.', 'error');
-    return;
+    hasError = true;
   }
+
+  if (hasError) return;
   
   const submitBtn = document.querySelector('#request .form-submit');
   submitBtn.disabled = true;
@@ -995,7 +1031,8 @@ async function submitForm() {
       }, 1500);
     }
 
-    // Reset form
+    // Reset form and clear inline errors
+    clearFieldErrors('#request');
     document.getElementById('fname').value = '';
     document.getElementById('femail').value = '';
     document.getElementById('fphone').value = '';
@@ -1097,6 +1134,7 @@ function openWebinarModal(webinarId, webinarTitle, webinarDate, webinarTime, pri
 function closeWebinarModal() {
   document.getElementById('webinarModal').style.display = 'none';
   currentWebinar = null;
+  clearFieldErrors('#webinarRegistrationForm');
 }
 
 async function submitWebinarRegistration(event) {
@@ -1107,9 +1145,10 @@ async function submitWebinarRegistration(event) {
   const successMsg = document.getElementById('webinarSuccess');
   const errorMsg = document.getElementById('webinarError');
   
-  // Hide previous messages
+  // Hide previous messages and clear inline errors
   successMsg.style.display = 'none';
   errorMsg.style.display = 'none';
+  clearFieldErrors('#webinarRegistrationForm');
   
   // Get form data
   const formData = {
@@ -1122,22 +1161,26 @@ async function submitWebinarRegistration(event) {
     industry_sector: document.getElementById('wIndustry').value || null
   };
 
-  // Validate name and email
-  if (!formData.full_name || !formData.email) {
-    errorMsg.textContent = 'Full Name and Email are required.';
-    errorMsg.style.display = 'block';
-    return;
+  // Validate name and email with inline errors
+  let hasError = false;
+
+  if (!formData.full_name) {
+    showFieldError('wFullName', 'Full Name is required.');
+    hasError = true;
+  } else if (!isValidName(formData.full_name)) {
+    showFieldError('wFullName', 'Name must contain only letters — no numbers or special characters.');
+    hasError = true;
   }
-  if (!isValidName(formData.full_name)) {
-    errorMsg.textContent = 'Full Name must contain only letters (no numbers or special characters).';
-    errorMsg.style.display = 'block';
-    return;
+
+  if (!formData.email) {
+    showFieldError('wEmail', 'Email address is required.');
+    hasError = true;
+  } else if (!isValidEmail(formData.email)) {
+    showFieldError('wEmail', 'Enter a valid email (e.g. you@gmail.com).');
+    hasError = true;
   }
-  if (!isValidEmail(formData.email)) {
-    errorMsg.textContent = 'Please enter a valid email address (e.g. you@gmail.com).';
-    errorMsg.style.display = 'block';
-    return;
-  }
+
+  if (hasError) return;
   
   // Disable button and show loading
   submitBtn.disabled = true;
@@ -2323,12 +2366,13 @@ function openSatisfactionModal(data) {
     btn.style.color = '';
   });
 
-  modal.style.display = 'flex';
+modal.style.display = 'flex';
 }
 
 function closeSatisfactionModal() {
   document.getElementById('satisfactionModal').style.display = 'none';
   currentSatisfactionData = null;
+  clearFieldErrors('#feedbackForm');
 }
 
 function setModalStarRating(rating) {
@@ -2423,4 +2467,13 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch(warmupUrl, { method: 'GET', mode: 'cors' })
     .then(() => console.log('Backend warm-up complete'))
     .catch(() => console.log('Backend warming up...'));
+
+  // Auto-clear field errors when user starts typing
+  document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('field-error-border')) {
+      const err = e.target.parentElement.querySelector('.field-error');
+      if (err) err.remove();
+      e.target.classList.remove('field-error-border');
+    }
+  });
 });

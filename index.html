@@ -423,6 +423,12 @@
   .nps-btn.active { background:#00D9FF;color:#050A0E;border-color:#00D9FF; }
   #feedback.page { padding-top: 0; }
 
+  /* INLINE FIELD VALIDATION ERRORS */
+  .field-error { color: #ff4d4d; font-size: 12px; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 4px; animation: fieldErrorIn 0.3s ease; }
+  .field-error::before { content: '⚠'; font-size: 13px; }
+  .field-error-border { border-color: #ff4d4d !important; box-shadow: 0 0 0 2px rgba(255,77,77,0.15) !important; }
+  @keyframes fieldErrorIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
   /* FOOTER */
   footer { border-top: 1px solid var(--border); padding: 40px; text-align: center; color: var(--muted); font-size: 13px; }
 
