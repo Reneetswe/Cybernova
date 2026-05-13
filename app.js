@@ -7,6 +7,20 @@ const API_BASE_URL = (window.location.hostname === 'localhost' || window.locatio
   : 'https://cybernova-3rvx.onrender.com/api';
 
 // ============================================
+// VALIDATION HELPERS
+// ============================================
+
+function isValidName(name) {
+  // Name must contain only letters, spaces, hyphens, apostrophes — no digits
+  return /^[A-Za-z\s'\-]+$/.test(name.trim());
+}
+
+function isValidEmail(email) {
+  // Must have a valid format: user@domain.tld (e.g. user@gmail.com)
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+}
+
+// ============================================
 // API HELPER FUNCTIONS
 // ============================================
 
@@ -84,6 +98,12 @@ function showAdminPage(pageId) {
   // Scroll content to top
   const content = document.querySelector('.admin-content');
   if (content) content.scrollTo(0, 0);
+
+  // Close sidebar on mobile after navigation
+  if (window.innerWidth <= 768) {
+    const sidebar = document.getElementById('adminSidebar');
+    if (sidebar) sidebar.classList.remove('open');
+  }
   
   // Render charts if switching to pages that need them
   if (pageId === 'admin-overview') {
@@ -98,15 +118,34 @@ function showAdminPage(pageId) {
   }
 }
 
+// ============================================
+// MOBILE NAV TOGGLE
+// ============================================
+
+function toggleMobileNav() {
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.toggle('open');
+}
+
+function closeMobileNav() {
+  const navLinks = document.getElementById('navLinks');
+  if (navLinks) navLinks.classList.remove('open');
+}
+
 function toggleAdminSidebar() {
   const sidebar = document.getElementById('adminSidebar');
-  const main = document.querySelector('.admin-main');
-  if (sidebar.style.transform === 'translateX(-100%)') {
-    sidebar.style.transform = 'translateX(0)';
-    main.style.marginLeft = '180px';
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    sidebar.classList.toggle('open');
   } else {
-    sidebar.style.transform = 'translateX(-100%)';
-    main.style.marginLeft = '0';
+    const main = document.querySelector('.admin-main');
+    if (sidebar.style.transform === 'translateX(-100%)') {
+      sidebar.style.transform = 'translateX(0)';
+      main.style.marginLeft = '180px';
+    } else {
+      sidebar.style.transform = 'translateX(-100%)';
+      main.style.marginLeft = '0';
+    }
   }
 }
 
@@ -628,6 +667,20 @@ async function submitSatisfactionFeedback() {
 
   const nps = parseInt(document.getElementById('fbNPS').value) || null;
 
+  const fbNameVal = document.getElementById('fbName').value;
+  const fbEmailVal = document.getElementById('fbEmail').value;
+
+  if (fbNameVal && !isValidName(fbNameVal)) {
+    errEl.textContent = 'Name must contain only letters (no numbers or special characters).';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (fbEmailVal && !isValidEmail(fbEmailVal)) {
+    errEl.textContent = 'Please enter a valid email address (e.g. you@gmail.com).';
+    errEl.style.display = 'block';
+    return;
+  }
+
   const payload = {
     token: currentFeedbackToken,
     rating: rating,
@@ -636,8 +689,8 @@ async function submitSatisfactionFeedback() {
     liked_most: document.getElementById('fbLikedMost').value || null,
     improvements: document.getElementById('fbImprovements').value || null,
     comments: document.getElementById('fbComments').value || null,
-    respondent_name: document.getElementById('fbName').value || null,
-    respondent_email: document.getElementById('fbEmail').value || null,
+    respondent_name: fbNameVal || null,
+    respondent_email: fbEmailVal || null,
   };
 
   try {
@@ -880,6 +933,16 @@ async function submitForm() {
     showToast('Please fill in all required fields.', 'error');
     return;
   }
+
+  if (!isValidName(name)) {
+    showToast('Full Name must contain only letters (no numbers or special characters).', 'error');
+    return;
+  }
+
+  if (!isValidEmail(email)) {
+    showToast('Please enter a valid email address (e.g. you@gmail.com).', 'error');
+    return;
+  }
   
   if (services.length === 0) {
     showToast('Please select at least one service.', 'error');
@@ -1058,6 +1121,23 @@ async function submitWebinarRegistration(event) {
     country: document.getElementById('wCountry').value || null,
     industry_sector: document.getElementById('wIndustry').value || null
   };
+
+  // Validate name and email
+  if (!formData.full_name || !formData.email) {
+    errorMsg.textContent = 'Full Name and Email are required.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+  if (!isValidName(formData.full_name)) {
+    errorMsg.textContent = 'Full Name must contain only letters (no numbers or special characters).';
+    errorMsg.style.display = 'block';
+    return;
+  }
+  if (!isValidEmail(formData.email)) {
+    errorMsg.textContent = 'Please enter a valid email address (e.g. you@gmail.com).';
+    errorMsg.style.display = 'block';
+    return;
+  }
   
   // Disable button and show loading
   submitBtn.disabled = true;
@@ -1153,9 +1233,17 @@ async function doLogin() {
   const formData = new FormData();
   formData.append('username', email);
   formData.append('password', password);
+
+  // Show loading state on the login button
+  const loginBtn = document.querySelector('#login .form-submit');
+  const originalBtnText = loginBtn.textContent;
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Connecting to server...';
+  document.getElementById('loginErr').style.display = 'none';
   
   try {
     console.log('Sending login request to:', `${API_BASE_URL}/admin/auth/login`);
+    loginBtn.textContent = 'Signing in...';
     const response = await fetch(`${API_BASE_URL}/admin/auth/login`, {
       method: 'POST',
       body: formData
@@ -1168,19 +1256,28 @@ async function doLogin() {
       console.error('Login failed:', errorData);
       document.getElementById('loginErr').style.display = 'block';
       showToast('Login failed: ' + (errorData.detail || 'Invalid credentials'), 'error');
+      loginBtn.disabled = false;
+      loginBtn.textContent = originalBtnText;
       return;
     }
     
     const data = await response.json();
     console.log('Login successful, token received');
     localStorage.setItem('authToken', data.access_token);
+    loginBtn.textContent = 'Loading dashboard...';
     showToast('Login successful!');
     showPage('dashboard');
+    
+    // Restore button for future logins
+    loginBtn.disabled = false;
+    loginBtn.textContent = originalBtnText;
     
   } catch (error) {
     console.error('Login error:', error);
     document.getElementById('loginErr').style.display = 'block';
     showToast('Login failed: ' + error.message, 'error');
+    loginBtn.disabled = false;
+    loginBtn.textContent = originalBtnText;
   }
 }
 
@@ -2320,4 +2417,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.getElementById('events').classList.contains('active')) {
     loadWebinars();
   }
+
+  // Warm-up ping: wake up the Render backend early so subsequent calls are fast
+  const warmupUrl = API_BASE_URL.replace('/api', '/health');
+  fetch(warmupUrl, { method: 'GET', mode: 'cors' })
+    .then(() => console.log('Backend warm-up complete'))
+    .catch(() => console.log('Backend warming up...'));
 });

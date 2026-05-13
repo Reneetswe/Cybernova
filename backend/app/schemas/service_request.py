@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+import re
+from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
 from typing import List, Optional
 
@@ -11,6 +12,13 @@ class ServiceRequestCreate(BaseModel):
     industry_sector: str
     services: List[str]
     additional_notes: Optional[str] = None
+
+    @field_validator('full_name')
+    @classmethod
+    def name_must_be_letters(cls, v: str) -> str:
+        if not re.match(r"^[A-Za-z\s'\-]+$", v.strip()):
+            raise ValueError('Full name must contain only letters, spaces, hyphens or apostrophes')
+        return v.strip()
 
 class ServiceRequestResponse(BaseModel):
     id: int
@@ -40,6 +48,13 @@ class ServiceRequestUpdate(BaseModel):
     industry_sector: Optional[str] = None
     additional_notes: Optional[str] = None
     status: Optional[str] = None
+
+    @field_validator('full_name')
+    @classmethod
+    def name_must_be_letters(cls, v):
+        if v is not None and not re.match(r"^[A-Za-z\s'\-]+$", v.strip()):
+            raise ValueError('Full name must contain only letters, spaces, hyphens or apostrophes')
+        return v.strip() if v else v
 
 class ServiceRequestStatusUpdate(BaseModel):
     status: str  # submitted, reviewed, in_progress, completed

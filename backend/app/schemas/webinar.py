@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr
+import re
+from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
 from typing import Optional
 from decimal import Decimal
@@ -29,6 +30,13 @@ class WebinarRegistrationCreate(BaseModel):
     organization_name: Optional[str] = None
     country: Optional[str] = None
     industry_sector: Optional[str] = None
+
+    @field_validator('full_name')
+    @classmethod
+    def name_must_be_letters(cls, v: str) -> str:
+        if not re.match(r"^[A-Za-z\s'\-]+$", v.strip()):
+            raise ValueError('Full name must contain only letters, spaces, hyphens or apostrophes')
+        return v.strip()
 
 class WebinarRegistrationResponse(BaseModel):
     id: int

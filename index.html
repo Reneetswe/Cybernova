@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Electrolize&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -18,7 +20,7 @@
     --glow: 0 0 24px rgba(0,217,255,0.18);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Electrolize', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: 'Electrolize', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
 
   /* NAV */
   body > nav { position: fixed; top: 0; width: 100%; z-index: 100; background: rgba(5,10,14,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; height: 64px; }
@@ -428,19 +430,190 @@
   .toast { position: fixed; bottom: 30px; right: 30px; background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999; display: none; }
   .toast.error { border-color: var(--warn); color: var(--warn); }
 
-  @media (max-width: 768px) {
-    body > nav { padding: 0 20px; }
-    .nav-links { display: none; }
-    .hero { padding: 60px 20px 50px; }
-    .stats-bar { flex-wrap: wrap; margin: 0; }
-    .stat-item { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); }
-    .section { padding: 50px 20px; }
-    .form-grid { grid-template-columns: 1fr; }
-    .service-checkboxes { grid-template-columns: 1fr; }
-    .dash-grid { grid-template-columns: 1fr 1fr; padding: 20px; }
+  /* ============================================ */
+  /* CROSS-BROWSER COMPATIBILITY                  */
+  /* ============================================ */
+  body > nav { -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+  .modal, .modal-overlay { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  .hero-ctas { -webkit-flex-wrap: wrap; flex-wrap: wrap; }
+  .btn-primary, .btn-secondary, .nav-btn, .form-submit, .event-btn { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+  /* ============================================ */
+  /* MOBILE HAMBURGER MENU                        */
+  /* ============================================ */
+  .nav-hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 4px; }
+  .nav-hamburger svg { width: 26px; height: 26px; }
+
+  /* ============================================ */
+  /* TABLET — max-width: 1024px                   */
+  /* ============================================ */
+  @media (max-width: 1024px) {
+    .admin-kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .admin-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-charts-row { grid-template-columns: 1fr; }
+    .dash-grid { grid-template-columns: repeat(2, 1fr); padding: 20px; }
     .charts-row { grid-template-columns: 1fr; padding: 0 20px; }
     .charts-row.three { grid-template-columns: 1fr; }
-    .form-body, .form-header { padding: 24px; }
+    .settings-layout { flex-direction: column; }
+    .settings-tabs { width: 100%; display: flex; flex-wrap: wrap; border-radius: 12px; }
+    .settings-tabs a { flex: 1; min-width: 120px; text-align: center; border-left: none; border-bottom: 3px solid transparent; padding: 10px 12px; font-size: 12px; }
+    .settings-tabs a.active { border-left: none; border-bottom-color: #00D9FF; }
+    .settings-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================ */
+  /* MOBILE — max-width: 768px                    */
+  /* ============================================ */
+  @media (max-width: 768px) {
+    /* Nav */
+    body > nav { padding: 0 16px; gap: 8px; }
+    .nav-links { display: none; position: fixed; top: 64px; left: 0; right: 0; background: rgba(5,10,14,0.97); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); flex-direction: column; gap: 0; padding: 8px 0; border-bottom: 1px solid var(--border); z-index: 99; }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 14px 24px; font-size: 15px; border-bottom: 1px solid var(--border); }
+    .nav-hamburger { display: flex; align-items: center; justify-content: center; }
+    .nav-btn { padding: 7px 14px; font-size: 12px; }
+
+    /* Hero */
+    .hero { padding: 50px 20px 40px; min-height: auto; }
+    .hero h1 { font-size: clamp(28px, 8vw, 44px); letter-spacing: -1px; }
+    .hero p { font-size: 15px; margin-bottom: 28px; }
+    .hero-ctas { flex-direction: column; gap: 12px; }
+    .btn-primary, .btn-secondary { width: 100%; text-align: center; padding: 14px 20px; font-size: 14px; }
+
+    /* Stats */
+    .stats-bar { flex-wrap: wrap; margin: 0; }
+    .stat-item { flex: 1 1 50%; border-right: none; border-bottom: 1px solid var(--border); padding: 20px 16px; }
+    .stat-num { font-size: 24px; }
+    .stat-label { font-size: 11px; }
+
+    /* Sections */
+    .section { padding: 40px 16px; }
+    .section-title { font-size: 26px; }
+    .section-sub { font-size: 14px; margin-bottom: 32px; }
+    .services-grid { grid-template-columns: 1fr; gap: 12px; }
+    .events-grid { grid-template-columns: 1fr; gap: 16px; }
+    .resources-grid { grid-template-columns: 1fr; gap: 12px; }
+
+    /* Event cards */
+    .event-meta { flex-wrap: wrap; gap: 8px; font-size: 12px; }
+
+    /* Forms */
+    .form-section { margin: 0; }
+    .form-header { padding: 24px 20px; border-radius: 12px; margin-bottom: 20px; }
+    .form-header h2 { font-size: 22px; }
+    .form-body { padding: 24px 20px; border-radius: 12px; }
+    .form-grid { grid-template-columns: 1fr; gap: 16px; }
+    .service-checkboxes { grid-template-columns: 1fr; }
+
+    /* Login */
+    .login-wrap { padding: 20px 16px; }
+    .login-box { padding: 32px 24px; }
+    .login-box h2 { font-size: 22px; }
+
+    /* Modals */
+    .modal-content { max-width: 100%; margin: 0 8px; border-radius: 12px; max-height: 85vh; }
+    .modal-content form { padding: 20px 16px; }
+    .modal-header { padding: 18px 16px; }
+
+    /* Dashboard KPIs */
+    .dash-grid { grid-template-columns: 1fr; padding: 16px; gap: 12px; }
+    .dash-header { padding: 20px 16px; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .kpi-value { font-size: 28px; }
+
+    /* Admin layout */
+    .admin-sidebar { transform: translateX(-100%); z-index: 300; }
+    .admin-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.5); }
+    .admin-main { margin-left: 0; }
+    .admin-topbar { padding: 0 16px; }
+    .admin-content { padding: 16px; }
+    .admin-kpi-row { grid-template-columns: 1fr; }
+    .admin-kpi-grid { grid-template-columns: 1fr; }
+    .admin-kpi .kpi-info .value { font-size: 22px; }
+    .admin-kpi-value { font-size: 22px; }
+    .admin-charts-row { grid-template-columns: 1fr; }
+    .admin-page-title { font-size: 20px; }
+
+    /* Admin tables — horizontal scroll */
+    .admin-card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .admin-data-table { min-width: 600px; }
+    .admin-table { min-width: 700px; }
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    /* Admin filters */
+    .admin-filters { flex-direction: column; align-items: stretch; gap: 12px; }
+    .admin-filter-group input, .admin-filter-group select { min-width: auto; width: 100%; }
+
+    /* Admin pagination */
+    .admin-pagination { flex-direction: column; gap: 8px; text-align: center; }
+
+    /* Settings */
+    .settings-layout { flex-direction: column; }
+    .settings-tabs { width: 100%; display: flex; flex-wrap: wrap; border-radius: 12px; }
+    .settings-tabs a { flex: 1; min-width: 100px; text-align: center; border-left: none; border-bottom: 3px solid transparent; padding: 10px 8px; font-size: 11px; }
+    .settings-tabs a.active { border-left: none; border-bottom-color: #00D9FF; }
+    .settings-grid { grid-template-columns: 1fr; }
+
+    /* Conversion funnel */
+    .conversion-row { flex-wrap: wrap; gap: 4px; }
+    .conv-label { width: 80px; font-size: 12px; }
+    .admin-layout .conv-label { width: 80px; font-size: 12px; }
+
+    /* Pie charts */
+    .pie-wrapper { flex-direction: column; align-items: center; gap: 16px; }
+    .admin-pie-wrapper { flex-direction: column; align-items: center; gap: 16px; }
+
+    /* Export */
+    .export-btn { width: 100%; justify-content: center; }
+
+    /* Admin footer */
+    .admin-footer { flex-direction: column; gap: 8px; text-align: center; padding: 16px; }
+
+    /* Toast */
+    .toast { left: 16px; right: 16px; bottom: 16px; text-align: center; }
+
+    /* Feedback page */
+    #feedback .modal-content,
+    #feedback > div > div { margin: 0; border-radius: 0; max-width: 100%; }
+
+    /* Force inline grid layouts to stack on mobile */
+    [style*="grid-template-columns:1fr 1fr 1fr"],
+    [style*="grid-template-columns: 1fr 1fr 1fr"],
+    [style*="grid-template-columns:1fr 1fr"],
+    [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+
+    /* Satisfaction modal */
+    #satisfactionModal .modal-content { max-width: 100%; margin: 0 8px; padding: 20px !important; }
+
+    /* Webinar admin modal */
+    #adminWebinarModal .modal-content { max-width: 100%; margin: 0 8px; }
+
+    /* Manage webinars header */
+    #admin-webinars > div:first-child { flex-direction: column; gap: 12px; align-items: flex-start !important; }
+
+    /* Footer */
+    footer { padding: 24px 16px; }
+  }
+
+  /* ============================================ */
+  /* SMALL MOBILE — max-width: 480px              */
+  /* ============================================ */
+  @media (max-width: 480px) {
+    .hero { padding: 40px 14px 30px; }
+    .hero h1 { font-size: 26px; letter-spacing: -0.5px; }
+    .hero p { font-size: 14px; }
+    .section { padding: 32px 14px; }
+    .section-title { font-size: 22px; }
+    .stat-item { flex: 1 1 100%; }
+    .form-header, .form-body { padding: 20px 16px; }
+    .login-box { padding: 28px 18px; }
+    .admin-topbar-user span { display: none; }
+    .admin-content { padding: 12px; }
+    .admin-kpi .kpi-info .value { font-size: 20px; }
+    .admin-kpi-value { font-size: 20px; }
+    /* Prevent iOS zoom on input focus — inputs must be >= 16px */
+    .form-group input, .form-group select, .form-group textarea,
+    .settings-field input, .settings-field select,
+    .admin-filter-group input, .admin-filter-group select { font-size: 16px; }
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -449,11 +622,14 @@
 
 <nav>
   <div class="nav-logo">Cyber<span>Nova</span></div>
-  <div class="nav-links">
-    <a href="#" onclick="showPage('home')">Home</a>
-    <a href="#" onclick="showPage('services')">Services</a>
-    <a href="#" onclick="showPage('events')">Events &amp; Resources</a>
-    <a href="#" onclick="showPage('request')">Request Assessment</a>
+  <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Toggle menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+  <div class="nav-links" id="navLinks">
+    <a href="#" onclick="showPage('home'); closeMobileNav()">Home</a>
+    <a href="#" onclick="showPage('services'); closeMobileNav()">Services</a>
+    <a href="#" onclick="showPage('events'); closeMobileNav()">Events &amp; Resources</a>
+    <a href="#" onclick="showPage('request'); closeMobileNav()">Request Assessment</a>
   </div>
   <button class="nav-btn" onclick="showPage('login')">Dashboard Login</button>
 </nav>
@@ -541,7 +717,7 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Full Name *</label>
-            <input type="text" id="fname" placeholder="Your full name">
+            <input type="text" id="fname" placeholder="Your full name" pattern="[A-Za-z\s'\-]+" title="Name must contain only letters, spaces, hyphens or apostrophes">
           </div>
           <div class="form-group">
             <label>Email Address *</label>
@@ -756,7 +932,7 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
           <div>
             <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">Name <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
-            <input type="text" id="fbName" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;color:#111827" placeholder="Your name">
+            <input type="text" id="fbName" style="width:100%;padding:10px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;color:#111827" placeholder="Your name" pattern="[A-Za-z\s'\-]+" title="Name must contain only letters, spaces, hyphens or apostrophes">
           </div>
           <div>
             <label style="display:block;font-size:13px;font-weight:600;color:#374151;margin-bottom:6px">Email <span style="font-weight:400;color:#9ca3af">(optional)</span></label>
@@ -1793,7 +1969,7 @@
     <form id="webinarRegistrationForm" onsubmit="submitWebinarRegistration(event)">
       <div class="form-group" style="margin-bottom:16px;">
         <label>Full Name *</label>
-        <input type="text" id="wFullName" name="full_name" placeholder="Your full name" required>
+        <input type="text" id="wFullName" name="full_name" placeholder="Your full name" required pattern="[A-Za-z\s'\-]+" title="Name must contain only letters, spaces, hyphens or apostrophes">
       </div>
       
       <div class="form-group" style="margin-bottom:16px;">
