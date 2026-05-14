@@ -1084,7 +1084,7 @@ function renderWebinars() {
           <span>⏰ ${webinar.event_time}</span>
           <span>👥 ${webinar.registration_count} registered</span>
         </div>
-        <button class="event-btn" onclick="registerEvent(this, ${webinar.id}, '${webinar.title.replace(/'/g, "\\'")}', ${webinar.price || 'null'})">
+        <button class="event-btn" onclick="registerEvent(this, ${webinar.id})">
           Register ${webinar.price ? `— P${webinar.price}` : 'Free'} →
         </button>
       </div>
