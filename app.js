@@ -1270,7 +1270,14 @@ async function registerEvent(btn, webinarIdOrTitle, webinarTitle, price, retried
   console.log('Found webinarData:', webinarData);
 
   if (webinarData) {
-    openWebinarModal(webinarData.id, webinarData.title, webinarData.event_date, webinarData.event_time, webinarData.price);
+    console.log('About to call openWebinarModal...');
+    try {
+      openWebinarModal(webinarData.id, webinarData.title, webinarData.event_date, webinarData.event_time, webinarData.price);
+      console.log('openWebinarModal completed successfully');
+    } catch (error) {
+      console.error('Error in openWebinarModal:', error);
+      alert('Error opening registration form: ' + error.message);
+    }
   } else if (!retried) {
     // Webinars not yet loaded — fetch them first then retry once
     try {
