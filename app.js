@@ -1135,13 +1135,9 @@ function openWebinarModal(webinarId, webinarTitle, webinarDate, webinarTime, pri
   // Clear any previous field errors
   clearFieldErrors('#webinarRegistrationForm');
   
-  // Show modal - use both style and attribute to ensure it works
-  modalEl.style.display = 'flex';
-  modalEl.style.visibility = 'visible';
-  modalEl.style.opacity = '1';
-  
-  console.log('Modal display set to:', modalEl.style.display);
-  console.log('Modal element:', modalEl);
+  // Show modal
+  modalEl.style.display = 'block';
+  console.log('Modal shown, display:', modalEl.style.display);
 }
 
 function closeWebinarModal() {

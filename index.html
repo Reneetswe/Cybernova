@@ -1960,84 +1960,74 @@
 <div class="toast" id="toast"></div>
 
 <!-- Webinar Registration Modal -->
-<div id="webinarModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; background:rgba(5,10,14,0.95); z-index:99999; justify-content:center; align-items:center;" onclick="if(event.target.id==='webinarModal') closeWebinarModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Register for Webinar</h3>
-      <button class="modal-close" onclick="closeWebinarModal()">×</button>
-    </div>
-    
-    <div id="webinarInfo" style="margin-bottom:20px; padding:12px; background:rgba(0,217,255,0.05); border-radius:0; border:1px solid rgba(0,217,255,0.2);">
-      <div id="webinarTitle" style="font-size:14px; font-weight:600; margin-bottom:4px;"></div>
-      <div id="webinarDetails" style="font-size:12px; color:var(--muted);"></div>
+<div id="webinarModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999;" onclick="if(event.target===this) closeWebinarModal()">
+  <div onclick="event.stopPropagation()" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:#0C1419; border:1px solid #1A2A36; border-radius:16px; width:90%; max-width:540px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,0.8); padding:0;">
+    <div style="display:flex; align-items:center; justify-content:space-between; padding:24px 28px; border-bottom:1px solid #1A2A36;">
+      <h3 style="margin:0; font-family:'Electrolize',sans-serif; font-size:20px; font-weight:700; color:#E8F0F5;">Register for Webinar</h3>
+      <button onclick="closeWebinarModal()" style="background:transparent; border:none; color:#6A8A9A; font-size:32px; line-height:1; cursor:pointer; padding:0;">&times;</button>
     </div>
 
-    <form id="webinarRegistrationForm" onsubmit="submitWebinarRegistration(event)">
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Full Name *</label>
-        <input type="text" id="wFullName" name="full_name" placeholder="Your full name" required pattern="[A-Za-z\s'\-]+" title="Name must contain only letters, spaces, hyphens or apostrophes">
+    <div style="padding:24px 28px;">
+      <div id="webinarInfo" style="margin-bottom:20px; padding:12px; background:rgba(0,217,255,0.05); border:1px solid rgba(0,217,255,0.2); border-radius:8px;">
+        <div id="webinarTitle" style="font-size:14px; font-weight:600; margin-bottom:4px; color:#E8F0F5;"></div>
+        <div id="webinarDetails" style="font-size:12px; color:#6A8A9A;"></div>
       </div>
-      
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Email Address *</label>
-        <input type="email" id="wEmail" name="email" placeholder="you@company.com" required>
-      </div>
-      
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Phone Number</label>
-        <input type="tel" id="wPhone" name="phone_number" placeholder="+267 7X XXX XXX">
-      </div>
-      
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Organization</label>
-        <input type="text" id="wOrg" name="organization_name" placeholder="Your company">
-      </div>
-      
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Country</label>
-        <select id="wCountry" name="country">
-          <option value="">Select country...</option>
-          <option>Botswana</option>
-          <option>South Africa</option>
-          <option>Zimbabwe</option>
-          <option>Zambia</option>
-          <option>Namibia</option>
-          <option>Mozambique</option>
-          <option>Tanzania</option>
-          <option>Kenya</option>
-          <option>Ghana</option>
-          <option>Nigeria</option>
-          <option>Other</option>
-        </select>
-      </div>
-      
-      <div class="form-group" style="margin-bottom:16px;">
-        <label>Industry Sector</label>
-        <select id="wIndustry" name="industry_sector">
-          <option value="">Select sector...</option>
-          <option>Banking & Financial Services</option>
-          <option>Government & Public Sector</option>
-          <option>Healthcare</option>
-          <option>Retail & E-commerce</option>
-          <option>Telecommunications</option>
-          <option>Education</option>
-          <option>Mining & Resources</option>
-          <option>Logistics & Transport</option>
-          <option>SME (General)</option>
-          <option>Other</option>
-        </select>
-      </div>
-      
-      <button type="submit" class="form-submit" id="webinarSubmitBtn">
-        <span id="webinarBtnText">Register</span>
-      </button>
-      
-      <div id="webinarSuccess" class="success-msg" style="display:none; margin-top:12px;">
-        ✅ Registration successful! Check your email for confirmation.
-      </div>
-      
-      <div id="webinarError" class="error-msg" style="display:none; margin-top:12px;"></div>
-    </form>
+
+      <form id="webinarRegistrationForm" onsubmit="submitWebinarRegistration(event)">
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Full Name *</label>
+          <input type="text" id="wFullName" name="full_name" placeholder="Your full name" required pattern="[A-Za-z\s'\-]+" title="Name must contain only letters" style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Email Address *</label>
+          <input type="email" id="wEmail" name="email" placeholder="you@company.com" required style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Phone Number</label>
+          <input type="tel" id="wPhone" name="phone_number" placeholder="+267 7X XXX XXX" style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Organization</label>
+          <input type="text" id="wOrg" name="organization_name" placeholder="Your company" style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Country</label>
+          <select id="wCountry" name="country" style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+            <option value="">Select country...</option>
+            <option>Botswana</option><option>South Africa</option><option>Zimbabwe</option>
+            <option>Zambia</option><option>Namibia</option><option>Mozambique</option>
+            <option>Tanzania</option><option>Kenya</option><option>Ghana</option>
+            <option>Nigeria</option><option>Other</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:13px; font-weight:600; margin-bottom:6px; color:#E8F0F5;">Industry Sector</label>
+          <select id="wIndustry" name="industry_sector" style="width:100%; padding:10px 14px; background:#101820; border:1px solid #1A2A36; border-radius:8px; color:#E8F0F5; font-family:'Electrolize',sans-serif; font-size:14px; box-sizing:border-box;">
+            <option value="">Select sector...</option>
+            <option>Banking & Financial Services</option><option>Government & Public Sector</option>
+            <option>Healthcare</option><option>Retail & E-commerce</option>
+            <option>Telecommunications</option><option>Education</option>
+            <option>Mining & Resources</option><option>Logistics & Transport</option>
+            <option>SME (General)</option><option>Other</option>
+          </select>
+        </div>
+
+        <button type="submit" id="webinarSubmitBtn" style="width:100%; padding:12px; background:#00D9FF; color:#050A0E; border:none; border-radius:8px; font-family:'Electrolize',sans-serif; font-size:15px; font-weight:700; cursor:pointer;">
+          <span id="webinarBtnText">Register Free</span>
+        </button>
+
+        <div id="webinarSuccess" style="display:none; margin-top:12px; padding:12px; background:rgba(0,217,255,0.1); border:1px solid rgba(0,217,255,0.3); border-radius:8px; color:#00D9FF; font-size:14px;">
+          ✅ Registration successful! Check your email for confirmation.
+        </div>
+
+        <div id="webinarError" style="display:none; margin-top:12px; padding:12px; background:rgba(255,77,77,0.1); border:1px solid rgba(255,77,77,0.3); border-radius:8px; color:#ff4d4d; font-size:14px;"></div>
+      </form>
+    </div>
   </div>
 </div>
 
