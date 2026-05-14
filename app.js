@@ -1603,7 +1603,7 @@ function renderAdminWebinarsTable(webinars) {
   }).join('');
 }
 
-function openWebinarModal(webinarId = null) {
+function openAdminWebinarModal(webinarId = null) {
   const modal = document.getElementById('adminWebinarModal');
   const form = document.getElementById('adminWebinarForm');
   const title = document.getElementById('webinarModalTitle');
@@ -1695,7 +1695,7 @@ async function saveWebinar(event) {
 }
 
 async function editWebinar(webinarId) {
-  openWebinarModal(webinarId);
+  openAdminWebinarModal(webinarId);
 }
 
 async function deleteWebinar(webinarId, title, registrationCount) {
