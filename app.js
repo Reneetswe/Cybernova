@@ -1096,45 +1096,59 @@ function renderWebinars() {
 let currentWebinar = null;
 
 function openWebinarModal(webinarId, webinarTitle, webinarDate, webinarTime, price) {
-  console.log('Opening webinar modal:', webinarId, webinarTitle);
+  console.log('openWebinarModal called with:', { webinarId, webinarTitle, webinarDate, webinarTime, price });
+  
+  // Get the modal element first
+  const modalEl = document.getElementById('webinarModal');
+  if (!modalEl) {
+    console.error('ERROR: webinarModal element not found in DOM!');
+    alert('Error: Registration modal not found. Please refresh the page.');
+    return;
+  }
+  
+  // Store current webinar data
   currentWebinar = { id: webinarId, title: webinarTitle, price: price };
   
   // Update modal content
   const titleEl = document.getElementById('webinarTitle');
   const detailsEl = document.getElementById('webinarDetails');
   const btnTextEl = document.getElementById('webinarBtnText');
-  const modalEl = document.getElementById('webinarModal');
   
-  console.log('Modal elements:', { titleEl, detailsEl, btnTextEl, modalEl });
-  
-  if (!titleEl || !detailsEl || !btnTextEl || !modalEl) {
-    console.error('Modal elements not found!');
-    return;
-  }
-  
-  titleEl.textContent = webinarTitle;
-  detailsEl.textContent = `${webinarDate} • ${webinarTime}`;
+  if (titleEl) titleEl.textContent = webinarTitle;
+  if (detailsEl) detailsEl.textContent = `${webinarDate} • ${webinarTime}`;
   
   // Update button text with price
-  const btnText = price ? `Register — P${price}` : 'Register Free';
-  btnTextEl.textContent = btnText;
+  if (btnTextEl) {
+    btnTextEl.textContent = price ? `Register — P${price}` : 'Register Free';
+  }
   
   // Reset form
   const formEl = document.getElementById('webinarRegistrationForm');
   if (formEl) formEl.reset();
   
+  // Hide previous messages
   const successEl = document.getElementById('webinarSuccess');
   const errorEl = document.getElementById('webinarError');
   if (successEl) successEl.style.display = 'none';
   if (errorEl) errorEl.style.display = 'none';
   
-  // Show modal
+  // Clear any previous field errors
+  clearFieldErrors('#webinarRegistrationForm');
+  
+  // Show modal - use both style and attribute to ensure it works
   modalEl.style.display = 'flex';
-  console.log('Modal should now be visible');
+  modalEl.style.visibility = 'visible';
+  modalEl.style.opacity = '1';
+  
+  console.log('Modal display set to:', modalEl.style.display);
+  console.log('Modal element:', modalEl);
 }
 
 function closeWebinarModal() {
-  document.getElementById('webinarModal').style.display = 'none';
+  const modalEl = document.getElementById('webinarModal');
+  if (modalEl) {
+    modalEl.style.display = 'none';
+  }
   currentWebinar = null;
   clearFieldErrors('#webinarRegistrationForm');
 }
