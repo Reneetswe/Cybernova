@@ -1058,11 +1058,13 @@ let webinarsData = [];
 
 async function loadWebinars() {
   try {
+    console.log('Loading webinars from API...');
     webinarsData = await apiCall('/webinars');
+    console.log('Webinars loaded:', webinarsData.length, 'webinars');
     renderWebinars();
   } catch (error) {
     console.error('Error loading webinars:', error);
-    showToast('Error loading webinars', 'error');
+    // Don't show toast on initial load to avoid annoying users
   }
 }
 
@@ -1235,7 +1237,9 @@ async function submitWebinarRegistration(event) {
 }
 
 // Handles both legacy calls (btn, titleString) and dynamic calls (btn, id, title, price)
-async function registerEvent(btn, webinarIdOrTitle, webinarTitle, price) {
+async function registerEvent(btn, webinarIdOrTitle, webinarTitle, price, retried = false) {
+  console.log('registerEvent called:', { webinarIdOrTitle, webinarTitle, price, webinarsDataLength: webinarsData.length });
+  
   let webinarData = null;
 
   if (typeof webinarIdOrTitle === 'number') {
@@ -1249,16 +1253,23 @@ async function registerEvent(btn, webinarIdOrTitle, webinarTitle, price) {
     );
   }
 
+  console.log('Found webinarData:', webinarData);
+
   if (webinarData) {
     openWebinarModal(webinarData.id, webinarData.title, webinarData.event_date, webinarData.event_time, webinarData.price);
-  } else {
-    // Webinars not yet loaded — fetch them first then retry
+  } else if (!retried) {
+    // Webinars not yet loaded — fetch them first then retry once
     try {
+      console.log('Webinar not found, loading webinars...');
       await loadWebinars();
-      await registerEvent(btn, webinarIdOrTitle, webinarTitle, price);
+      await registerEvent(btn, webinarIdOrTitle, webinarTitle, price, true);
     } catch (e) {
+      console.error('Error loading webinars:', e);
       showToast('Could not load event details. Please try again.', 'error');
     }
+  } else {
+    console.error('Webinar not found after retry:', webinarIdOrTitle);
+    showToast('Event not found. Please refresh the page and try again.', 'error');
   }
 }
 
@@ -2457,10 +2468,8 @@ async function submitModalFeedback() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Load webinars on events page if it's the active page
-  if (document.getElementById('events').classList.contains('active')) {
-    loadWebinars();
-  }
+  // Always load webinars on page load so they're ready when user clicks register
+  loadWebinars();
 
   // Warm-up ping: wake up the Render backend early so subsequent calls are fast
   const warmupUrl = API_BASE_URL.replace('/api', '/health');
